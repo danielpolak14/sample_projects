@@ -1,0 +1,32 @@
+!Skrypt wczytuje listê powierzchni, pomiêdzy którymi maj¹ zostaæ utworzone
+!kontakty.
+!Struktura listy zosta³a utworzona w taki sposób, aby zapewniæ dzia³anie z
+!makrem 'kontakt_powloki', którego definicja znajduje siê w pliku 'makra.mac':
+!
+!k_lista() = ARG2, ARG3, ARG4, ARG5, tolerancja
+!gdzie:
+!ARG2 - numer powierzchni, na której zdefiniowane zostan¹ elementy typu TARGE
+!ARG3 - orientacja normalnych powy¿szej powierzchni
+!ARG4 - numer powierzchni, na której zdefiniowane zostan¹ elementy typu CONTA
+!ARG5 - orientacja normalnych powy¿szej powierzchni
+!tolerancja - dodatkowy argument zwiêkszaj¹cy tolerancjê obszaru kontaktu
+!
+!dla ARG3 i ARG5 - je¿eli < 0  - normalne tworzonych elementów zostaj¹ odwrócone
+!			    		      wzglêdem uk³adu elementu pierwotnego
+!			  - je¿eli >= 0 - normalne pozostaj¹ niezmienione
+
+*DIM, k_lista, ARRAY, 5, 2
+k_lista(1,1) = 1,, 2,, 		!pow. nr 1 i 2
+k_lista(1,2) = 3,, 4,, 		!pow. nr 3 i 4
+
+!lista kontaktów kilku powierzchni. Strukturê listy opisano w makrze
+!kontakt_kilku_powierzchni.
+*DIM, k_k_lista, ARRAY, 6, 3, 2
+!zeso³y pow. nr 5 i 6
+k_k_lista(1, 1, 1)=11302
+k_k_lista(1, 2, 1)=11601, 11619, 11630
+k_k_lista(1, 3, 1)=0					!tolerancja
+!zespoly pow. nr 7 i 8
+k_k_lista(1, 1, 2)=11502
+k_k_lista(1, 2, 2)=11620, 11633, 11646
+k_k_lista(1, 3, 2)=0					!tolerancja

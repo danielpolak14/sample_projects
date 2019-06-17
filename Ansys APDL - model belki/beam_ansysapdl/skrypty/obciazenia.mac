@@ -1,0 +1,44 @@
+!****warunki brzegowe i pocz¹tkowe****
+	!parametr w³¹czaj¹cy zamocowanie na wszystkich 4-ech œrubach
+	pelne_mocowanie='t' !'n' - nie, 't' - tak
+	ASEL, S,,, 25189
+	ASEL, A,,, 25168
+	ASEL, A,,, 25179
+	ASEL, A,,, 25194
+	ASEL, A,,, 25037
+	ASEL, A,,, 25033
+	ASEL, A,,, 25015
+	ASEL, A,,, 25028
+	ASEL, A,,, 25034
+	ASEL, A,,, 25030
+	ASEL, A,,, 25006
+	ASEL, A,,, 25025
+	ASEL, A,,, 25170
+	ASEL, A,,, 25178
+	ASEL, A,,, 25192
+	ASEL, A,,, 25186
+
+	*IF, pelne_mocowanie, EQ, 't', THEN
+		ASEL, A,,, 25070
+		ASEL, A,,, 25059
+		ASEL, A,,, 25080
+		ASEL, A,,, 25085
+		ASEL, A,,, 25145
+		ASEL, A,,, 25150
+		ASEL, A,,, 25129
+		ASEL, A,,, 25118
+		ASEL, A,,, 25148
+		ASEL, A,,, 25128
+		ASEL, A,,, 25120
+		ASEL, A,,, 25142
+		ASEL, A,,, 25077
+		ASEL, A,,, 25083
+		ASEL, A,,, 25069
+		ASEL, A,,, 25061
+	*ENDIF
+	CSYS, 21
+	!ASEL, S, LOC, Y, -bk_bok/2-8-20+1,-bk_bok/2-8-20-1
+	DA, ALL, ALL
+	
+	ALLSEL, ALL
+!**********definicja obci¹¿eñ*********

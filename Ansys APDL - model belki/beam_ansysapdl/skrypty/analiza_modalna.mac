@@ -1,0 +1,24 @@
+!****ustawienia dotycz¹ce rodzaju analizy****
+	!wybór rodzaju analizy
+	ANTYPE, 2                   !(analiza modalna)
+
+	!wybranie metody rozwi¹zywania zagadnienia w³asnego (domyœlnie m. Lanczosa),
+	!iloœci postaci w³asnych do uzyskania i ustawienie normalizacji postaci
+	!drgañ w³asnych
+	*IF, a_modalna_tlumienie, EQ, 1, THEN!
+ 		!rozwi¹zanie z uwzglêdnieniem t³umienia metod¹ Damped
+		MODOPT, DAMP, ilosc_modow,,,, norm_postaci
+	*ELSEIF, a_modalna_tlumienie, EQ, 2, THEN!
+ 		!rozwi¹zanie z uwzglêdnieniem t³umienia metod¹ QRDamped
+		MODOPT, QRDAMP, ilosc_modow,,,, norm_postaci
+	*ELSE
+ 		!rozwi¹zanie metod¹ Block Lanczos, bez t³umienia
+		MODOPT, LANB, ilosc_modow,,,, norm_postaci
+	*ENDIF
+
+	EQSLV, SPAR                 !wybranie solvera równañ (metoda macierzy
+						   !rzadkich - Sparse Method)
+	MXPAND, ilosc_modow         !wybranie iloœci modów do zapisania w plikach
+						   !z wynikami
+	PSTRES, napr_wstep_FLAG     !okreœlenie, czy maj¹ zostaæ uwzglêdnione
+						   !naprê¿enia wstêpne

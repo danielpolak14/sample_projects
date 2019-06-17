@@ -1,0 +1,46 @@
+!*****ustawienia wyœwietlania obiektów w oknie*****
+  	!ustawienie punktu obserwacji
+	/VIEW, 1, 1 ,1 , 1
+	/ANG, 1, 0
+	/DIST, 1, 50, 0
+	/FOC, 1, 0, 0, 0
+
+	!wyœwietlenie obiektów na ekranie
+	!KPLOT                       	!punkty
+	!LPLOT					!linie
+	!APLOT                       	!powierzchnie
+	!VPLOT                       	!objêtoœci
+	!EPLOT                       	!elementy
+	!NPLOT					!wêz³y
+	!GPLOT                       	!MultiPlot
+
+	!w³¹czenie numerowania obiektów
+	!/PNUM, KP, 1
+	!/PNUM, LINE, 1
+	!/PNUM, AREA, 1
+
+	!w³¹czenie wyœwietlania kszta³tu elementów
+	!/ESHAPE, 1, 0
+
+	!w³¹czenie wyœwietlania sprzê¿onych stopni swobody i
+	/PBC, CP, 1
+	/PBC, CE, 1
+
+	!ustawienia MultiPlot
+	/GTYPE, 1, VOLU, 1
+	/GTYPE, 1, AREA, 1
+	/GTYPE, 1, LINE, 1
+	/GTYPE, 1, KEYP, 1
+	/GTYPE, 1, ELEM, 1
+	/GTYPE, 1, NODE, 1
+
+	!przejrzystoœæ
+	!/TRLCY, AREA, 0.8
+	!/TRLCY, VOLU, 0.8
+	!/TRLCY, ELEM, 0.8
+
+	!w³¹czenie mo¿liwoœcie sterowania ekranem z klawiszem ctrl
+	/USER
+
+	!wy³¹czenie wyœwietlania WorkPlane
+	WPSTYLE,,,,,,,,0 

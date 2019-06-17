@@ -1,0 +1,14 @@
+!Skrypt zawiera inicjalizacjê wa¿niejszych parametrów modelu oraz niektórych
+!innych w³asnoœci modelu. Parametry te wykorzystywane w kilku miejscach modelu.
+!Jednokrotna inicjalizacja pozwala na unikniêcie wielokrotnego definiowania tych
+!samych w³aœciwoœci oraz na globaln¹ zmianê parametrów.
+
+!***definicja elementów***
+	!element modeluj¹cy naprê¿enia wstêpne i zw¹zany z nim zbiór sta³ych
+	!ET,		1, 	PRETS179
+	!R, 		1				!zbiór nie zawiera definicji obcia¿enia.
+							!Obci¹¿enienie jest definiowane komend¹ SDATA
+
+!***wczytanie wa¿niejszych parametrów***
+	!licznik utworzonych par kontaktowych
+	ostatnia_para=0

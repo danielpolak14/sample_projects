@@ -1,0 +1,25 @@
+!****definicja materia³ów****
+	!MAT1 - materia³ obszaru nr 1
+	!parametry materia³u nr 1 - stal ST235JR (norma PN-EN 10025-2)
+	!Modu³ sprê¿ystoœci pod³u¿nej przyjêto jak dla stali konstrukcyjnych
+	mat_ex	= 2.10e5		!modu³ Younga, 210GPa
+	mat_prxy	= 0.3     	!wspó³czynnik Poissona, 0.3
+	mat_dens	= 7.85e-9 	!gêstoœæ, 7.85 g/cm^3
+
+	!przypisanie wartoœci do materia³u nr 1
+	MP, EX,	1, 	mat_ex
+	MP, PRXY,	1,	mat_prxy
+	MP, DENS,	1,	mat_dens
+
+!******definicja przekrojów******
+	!parametry przekrojów
+	!promien=2.5
+
+	!przekrój nr 1
+	!SECTYPE, 1, BEAM, CSOLID
+	!SECDATA, promien, 1
+
+!*****definicja elementów****
+	!definicja elementów
+	ET, 1, SOLID185
+	!KEYOPT(1)=0

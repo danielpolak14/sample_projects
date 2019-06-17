@@ -1,0 +1,226 @@
+!**********parametry***********
+	!parametry grupy obszarów nr 1
+	!wymiary k¹towników
+	kt_szer=40
+	kt_dlu=411
+	kt_gr=1.5
+	kt_prom_zaok=5
+	kt_otw_pol=18
+	kt_otw_sr=9
+	kt_otw_roz=18
+	kt_fas_dlu=18
+	kt_otw_sr_podkl=14
+	kt_otw_fas_wybor='otw'
+	!iloœæ otworów do wykonania
+	reszta=MOD(kt_dlu,kt_otw_roz)
+	il_perf=(kt_dlu-reszta)/kt_otw_roz
+	*IF, MOD(il_perf, 2), EQ, 0, AND, kt_otw_fas_wybor, NE, 'otw', THEN
+		il_otw=il_perf/2-1
+		il_fas=il_perf/2-1
+	*ENDIF
+	*IF, MOD(il_perf, 2), EQ, 0, AND, kt_otw_fas_wybor, EQ, 'otw', THEN
+		il_otw=il_perf/2-2
+		il_fas=il_perf/2-1
+	*ENDIF
+	*IF, MOD(il_perf, 2), EQ, 1, AND, kt_otw_fas_wybor, NE, 'otw', THEN
+		il_otw=(il_perf-1)/2-1
+		il_fas=(il_perf-1)/2
+	*ENDIF
+	*IF, MOD(il_perf, 2), EQ, 1, AND, kt_otw_fas_wybor, EQ, 'otw', THEN
+		il_otw=(il_perf-1)/2-2
+		il_fas=(il_perf-1)/2
+	*ENDIF
+
+	!d³ugoœæ przed³u¿enia na koñcach k¹towników - zmienna pomocnicza
+	kt_dlu_przedl=(kt_dlu-kt_otw_roz*il_perf)/2
+
+
+!****modelowanie geometrii*****
+	*GET, akt_csys, ACTIVE,, CSYS
+	
+	WPROTA, 0, 0, -90
+	*IF, kt_otw_fas_wybor, EQ, 'otw', THEN!
+ 		WPOFFS, 1.5*kt_otw_roz+kt_dlu_przedl, -kt_szer+kt_otw_pol, -kt_gr
+	*ELSE
+ 		WPOFFS, 0.5*kt_otw_roz+kt_dlu_przedl, -kt_szer+kt_otw_pol, -kt_ gr
+	*ENDIF
+
+
+
+	!pod³u¿ny otwór
+
+	WPOFFS,
+	CSWPLA, 100, CART
+	CYL4, 0, kt_fas_dlu/4, kt_otw_sr/2, 180, kt_otw_sr_podkl/2,, kt_gr
+	CYL4, 0, -kt_fas_dlu/4, kt_otw_sr/2, -180 ,kt_otw_sr_podkl/2,, kt_gr
+
+	V, 3, 4, 6, 7, 10, 9, 13, 16
+	V, 1, 2, 8, 5, 12, 11, 15, 14
+
+	BLC4, -kt_otw_roz/2, -kt_otw_sr/2, kt_otw_roz, -kt_otw_pol+kt_otw_sr/2, kt_gr
+	VSBV, 5, 2,,, KEEP
+	VDELE, 6,,, 1
+	BLC4, -kt_otw_roz/2, kt_otw_sr/2, kt_otw_roz, kt_szer-kt_otw_pol-kt_prom_zaok-kt_otw_sr/2, kt_gr
+	VSBV, 5, 1,,, KEEP
+	VDELE, 6,,, 1
+
+	WPOFFS, 0, kt_otw_sr/2, 0
+	WPROTA, 0, 90, 45
+	VSBW, 1
+	VSBW, 8
+	WPROTA, 0, 0, -90
+	VSBW, 6
+	VSBW, 9
+	A, 37, 38, 44, 43
+	VSBA, 11, 28
+
+	WPROTA, 0, 0, 45
+	WPOFFS, 0, 0, kt_otw_sr
+	WPROTA, 0, 0, 45
+	VSBW, 2
+	VSBW, 7
+	WPROTA, 0, 0, 90
+	VSBW, 13
+	VSBW, 14
+	A, 49, 50, 56, 55
+	VSBA, 16, 26
+
+	V, 1, 5, 30, 28, 12, 14, 23, 19
+	V, 4, 6, 29, 26, 9, 13, 24, 17
+
+	!mniejszy otwór
+	WPROTA, 90, 135, 90
+	WPOFFS, kt_otw_roz, kt_otw_sr/2, 0
+	CSWPLA, 101, CART
+	CYL4, 0, 0, kt_otw_sr/2, 270, kt_otw_sr_podkl/2,, kt_gr
+	K,, 0, 0, 0
+	K,, 0, 0, kt_gr
+	A, 19, 23, 66, 65
+	A, 28, 30, 66, 65
+	A, 37, 38, 66, 65
+	ARSYM, X, 91
+
+	VSBA, 19, 89
+	VSBA, 20, 90
+	VSBA, 19, 91
+	VSBA, 20, 92
+	VDELE, 21,,, 1
+	VDELE, 19,,, 1
+	VSYMM, X, 22, 23
+	VSEL, S,,, 23, 24
+	VSEL, A,,, 20
+	VSYM, Y, ALL
+	VSEL, S,,, 1, 100
+	
+	KSEL, S,,, 37, 38
+	KSEL, A,,, 55, 56
+	KSEL, A,,, 20, 22, 2
+	KSEL, A,,, 27, 31, 4
+
+	KSYMM, X, ALL
+	KSEL, S,,, 1, 1000
+	V, 37, 38, 56, 55, 109, 110, 112, 111
+	V, 27, 31, 38, 37, 107, 108, 110, 109
+	V, 20, 22, 56, 55, 105, 106, 112, 111
+	VSEL, S,,, 19, 26
+	CM, podklTemp, VOLU
+	VSEL, S,,, 1, 1000
+	VSBV, 27, podklTemp,,, KEEP
+	CMDELE, podklTemp
+	VDELE, 30,,, 1
+	
+	A, 28, 30, 77, 75
+	A, 37, 38, 81, 79
+	ASEL, S,,, 129, 131, 2
+	
+	ARSYM, X, ALL
+	ARSYM, Y, ALL
+
+	VSBA, 31, ALL
+	VSEL, S,,, 1, 1000
+	ASLV, S
+	LSLA, S
+	KSLL, S
+	NUMMRG, KP
+
+	!odbicie i obrót na drug¹ stronê k¹townika
+	CSYS, 100
+	WPCSYS
+	WPOFFS, -kt_otw_roz/2, kt_szer-kt_otw_pol-kt_prom_zaok, -kt_prom_zaok+kt_gr
+	WPROTA, 0, 0, 90
+	CSWPLA, 102, CART
+
+	VSEL, S,,, 1, 1000
+	VSYMM, Y, ALL
+	VSEL, R, LOC, Y, 0, 1000
+	CSWPLA, 103, CYLIN
+	VGEN,, ALL,,,, -90,,,,1
+
+	!zaokr¹glenie
+	CSYS, 102
+	VSEL, S,,, 1,  1000
+	WPROTA, 90, 0, 0
+	CYL4, 0, 0, kt_prom_zaok, 90, kt_prom_zaok-kt_gr,, kt_otw_roz
+	VOFFST, 320, kt_otw_roz
+
+	VSEL, S,,, 1, 1000
+	ASLV, S
+	LSLA, S
+	KSLL, S
+	NUMMRG, KP
+
+	!grupowanie objêtoœci
+	CSYS, 100
+	VSEL, S,,, 1, 1000
+	VSEL, R, LOC, X, -kt_otw_roz/2, kt_otw_roz/2
+	CM, kt_fas_volu, VOLU
+	CSYS, 101
+	VSEL, S,,, 1, 1000
+	VSEL, R, LOC, X, -kt_otw_roz/2, kt_otw_roz/2
+	CM, kt_otw_volu, VOLU
+	VSEL, ALL
+	NUMCMP, AREA
+
+	!pozosta³e otwory
+	CSYS, 102
+	!sprawdzenie, czy zwykly otwór ma byæ pierwszy
+	*IF, kt_otw_fas_wybor, EQ, 'otw', THEN
+		CMSEL, S, kt_otw_volu
+		VGEN, 2, ALL,,, 0, 0, -2*kt_otw_roz
+	*ENDIF
+	!wykonanie pozosta³ych otworów
+	CMSEL, S, kt_fas_volu
+	VGEN, il_fas+1, ALL,,, 0, 0, kt_otw_roz*2, 0
+	CMSEL, S, kt_otw_volu
+	VGEN, il_otw+1, ALL,,, 0, 0, kt_otw_roz*2, 0
+	VSEL, S,,, 1, 10000
+	!przed³u¿enie k¹towników na koñcach
+	*IF, kt_otw_fas_wybor, EQ, 'otw', THEN
+		ASEL, S,,, 1, 10000
+		ASEL, R, LOC, Z, -kt_otw_roz+0.1, -kt_otw_roz-0.1
+		VEXT, ALL,,, 0, 0, -kt_dlu_przedl
+		ASEL, S,,, 1, 10000
+		ASEL, R, LOC, Z, kt_otw_roz*(il_perf-1)-0.1, kt_otw_roz*(il_perf-1)+0.1
+		VEXT, ALL,,, 0, 0, kt_dlu_przedl
+	*ELSE
+		ASEL, S,,, 1, 10000
+		ASEL, R, LOC, Z, -0.1, 0.1
+		VEXT, ALL,,, 0, 0, -kt_dlu_przedl
+		ASEL, S,,, 1, 10000
+		ASEL, R, LOC, Z, kt_otw_roz*il_perf-1, kt_otw_roz*il_perf+1
+		VEXT, ALL,,, 0, 0, kt_dlu_przedl
+	*ENDIF
+	
+	KSEL, S,,, 1, 10000
+	NUMMRG, KP
+
+	CSYS, akt_csys
+	WPCSYS
+	*SET, akt_csys
+
+	CSDELE, 100
+	CSDELE, 101
+	CSDELE, 102
+	CSDELE, 103
+
+	ALLSEL, ALL

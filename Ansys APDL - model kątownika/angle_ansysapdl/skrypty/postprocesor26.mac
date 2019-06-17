@@ -1,0 +1,40 @@
+!*****zapis zmiennych do wykresów*****
+!Aby wyœwietliæ wykresy zapisanych poni¿ej zmiennych w dziedzinie
+!czêstotliwoœci, nale¿y przejœæ kolejno do Main Menu->TimeHist Postpro->
+!->Variable Viewer, a nastepnie wybraæ zmienn¹ lub zmienne do wyœwietlenia i
+!klikn¹æ ikonê Graph Data, w górnej czêœci wyœwietlonego okna 
+
+! 	!maksymalna iloœæ zmiennych
+! 	NUMVAR, 200
+! 	!licznik iloœci zmiennych w pamiêci
+! 	LastVar=1
+! 
+! 	*GET, wymiar, PARM, czuj_l_wezlow, DIM, 1
+! 	!zapis zmiennych postprocesora. Zapisywane s¹ przemieszczenia wêz³ów
+! 	!(w³aœæ. zwi¹zane z nimi elementy wektorów w³asnych), po³o¿onych w okolicy
+! 	!po³o¿enia czujników, w kierunku zgodnym z wielkoœciami mierzonymi, a ponadto
+! 	!iloczyn tych przemieszczeñ i kwadratów czêstotliwoœci (interpretacja
+! 	!fizyczna tego iloczynu to przyspieszenia - zmienne te s¹ tworzone w celu
+! 	!umo¿liwienia bezpoœredniego porównania wykresów z mierzonymi FRF)
+! 	*DO, ind, 1, wymiar
+! 		*IF, czuj_l_wezlow(ind, 2), EQ, 3, THEN
+! 			NSOL, 200, czuj_l_wezlow(ind, 1), U, Z
+! 			ABS, LastVar+1, 200,,, STRCAT(STRCAT('KT',CHRVAL(ind+1)),'_UZ')
+! 			PROD, 200, LastVar+1, 1
+! 			PROD, LastVar+wymiar+1, 200, 1,, STRCAT(STRCAT('KT',CHRVAL(ind+1)),'_UZ*OM2')
+! 		*ELSEIF, czuj_l_wezlow(ind, 2), EQ, 2
+! 			NSOL, 200, czuj_l_wezlow(ind, 1), U, Y
+! 			ABS, LastVar+1, 200,,, STRCAT(STRCAT('KT',CHRVAL(ind+1)),'_UY')
+! 			PROD, 200, LastVar+1, 1
+! 			PROD, LastVar+wymiar+1, 200, 1,, STRCAT(STRCAT('KT',CHRVAL(ind+1)),'_UY*OM2')
+! 		*ELSEIF, czuj_l_wezlow(ind, 2), EQ, 1
+! 			NSOL, 200, czuj_l_wezlow(ind, 1), U, X
+! 			ABS, LastVar+1, 200,,, STRCAT(STRCAT('KT',CHRVAL(ind+1)),'_UX')
+! 			PROD, 200, LastVar+1, 1
+! 			PROD, LastVar+wymiar+1, 200, 1,, STRCAT(STRCAT('KT',CHRVAL(ind+1)),'_UX*OM2')
+! 		*ENDIF
+! 		LastVar=LastVar+1
+! 	*ENDDO
+! 	LastVar=LastVar+wymiar
+! 
+! 	VARDEL, 200

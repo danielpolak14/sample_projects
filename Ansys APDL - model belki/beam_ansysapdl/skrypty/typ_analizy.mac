@@ -1,0 +1,15 @@
+!****ustawienia dotycz¹ce rodzaju analizy****
+	!wybór rodzaju analizy
+	ANTYPE,2                    !(analiza modalna)
+
+	!ustawienie opcji analizy
+	ilosc_modow=30
+	MODOPT,LANB,ilosc_modow     !wybranie metody rozwi¹zywania zagadnienia 
+						   !w³asnego (m. Lanczosa) i iloœci postaci
+						   !w³asnych do uzyskania
+	EQSLV,SPAR                  !wybranie solvera równañ (metoda macierzy 
+						   !rzadkich - Sparse Method)
+	MXPAND,ilosc_modow          !wybranie iloœci modów do 'rozszerzenia'
+	LUMPM,0                     !wybranie metody grupowania macierzy (domyœlna)
+	PSTRES,0                    !okreœlenie, czy maj¹ zostaæ uwzglêdnione 
+						   !naprê¿enia wstêpne (nie)

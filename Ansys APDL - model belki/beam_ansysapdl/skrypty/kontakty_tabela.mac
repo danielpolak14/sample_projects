@@ -1,0 +1,86 @@
+!Skrypt wczytuje listê powierzchni, pomiêdzy którymi maj¹ zostaæ utworzone
+!kontakty.
+!Struktura listy zosta³a utworzona w taki sposób, aby zapewniæ dzia³anie z
+!makrem 'kontakt_powloki', którego definicja znajduje siê w pliku 'makra.mac':
+!
+!k_lista() = ARG2, ARG3, ARG4, ARG5
+!gdzie:
+!ARG2 - numer powierzchni, na której zdefiniowane zostan¹ elementy typu TARGE
+!ARG3 - orientacja normalnych powy¿szej powierzchni
+!ARG4 - numer powierzchni, na której zdefiniowane zostan¹ elementy typu CONTA
+!ARG5 - orientacja normalnych powy¿szej powierzchni
+!
+!dla ARG3 i ARG5 - je¿eli <  - normalne tworzonych elementów zostaj¹ odwrócone
+!			    		      wzglêdem uk³adu elementu pierwotnego
+!			  - je¿eli >= - normalne pozostaj¹ niezmienione
+
+!*DIM, k_lista, ARRAY, 4, 2
+!k_lista(1,1) = 20004,, 20309,		!belka i k¹townik prawy
+!k_lista(1,2) = 20005,, 20209,		!belka i k¹townik lewy
+
+!lista kontaktów kilku ca³ych powierzchni. Strukturê listy opisano w makrze
+!'kontakt_calych_powierzchni'.
+*DIM, k_c_lista, ARRAY, 8, 2, 24
+!
+!belka-k¹towniki
+!
+!styk belki i k¹towników
+k_c_lista(1, 1, 1)=23283, 23210, 23127, 23286, 23213, 23155	!TARGE
+k_c_lista(1, 2, 1)=21180, 21212, 21200, 21123, 21196, 21209	!CONTA
+k_c_lista(1, 1, 2)=23304, 23301, 23306, 23309			!TARGE
+k_c_lista(1, 2, 2)=21145, 21155, 21253, 21169			!CONTA
+k_c_lista(1, 1, 3)=23243, 23335, 23313, 23334, 23337, 23316	!TARGE
+k_c_lista(1, 2, 3)=21246, 21236, 21240, 21250, 21243, 21224	!CONTA
+k_c_lista(1, 1, 4)=24154, 24291, 24221, 24097, 24293, 24286	!TARGE
+k_c_lista(1, 2, 4)=21211, 21199, 21122, 21195, 21208, 21179 !CONTA
+k_c_lista(1, 1, 5)=24308, 24305, 24313, 24318			!TARGE
+k_c_lista(1, 2, 5)=21144, 21154, 21252, 21168			!CONTA
+k_c_lista(1, 1, 6)=24327, 24333, 24228, 24330, 24338, 24280	!TARGE
+k_c_lista(1, 2, 6)=21235, 21239, 21249, 21242, 21223, 21247	!CONTA
+!styk œrub i k¹towników
+k_c_lista(1, 1, 7)=26137, 26144, 26133, 26141			!TARGE
+k_c_lista(1, 2, 7)=23284, 23211, 23089, 23285, 23279, 23177	!CONTA
+k_c_lista(1, 1, 8)=26237, 26244, 26233, 26241			!TARGE
+k_c_lista(1, 2, 8)=23305, 23302, 23307, 23310			!CONTA
+k_c_lista(1, 1, 9)=26337, 26344, 26333, 26341			!TARGE
+k_c_lista(1, 2, 9)=23331, 23336, 23311, 23333, 23338, 23317 !CONTA
+k_c_lista(1, 1, 10)=26154, 26151,26158, 26163			!TARGE
+k_c_lista(1, 2, 10)=24290, 24223, 24100, 24294, 24285, 24155 !CONTA
+k_c_lista(1, 1, 11)=26254, 26251,26258, 26263			 !TARGE
+k_c_lista(1, 2, 11)=24310, 24317, 24314, 24307		    	 !CONTA
+k_c_lista(1, 1, 12)=26354, 26351,26358, 26363			 !TARGE
+k_c_lista(1, 2, 12)=24326, 24335, 24231, 24331, 24337, 24281 !CONTA
+
+!
+!p³yta-k¹twoniki
+!
+!styk p³yty i k¹twoników
+k_c_lista(1, 1, 13)=25241, 25231, 25223, 25235 		!TARGE
+k_c_lista(1, 2, 13)=23385, 23380, 23375, 23270, 23390  !CONTA
+k_c_lista(1, 1, 14)=25264, 25272, 25282, 25276 		!TARGE
+k_c_lista(1, 2, 14)=23423, 23418, 23413, 23330, 23428  !CONTA
+k_c_lista(1, 1, 15)=25437, 25431, 25419, 25427 		!TARGE
+k_c_lista(1, 2, 15)=24358, 24362, 24274, 24350, 24354  !CONTA
+k_c_lista(1, 1, 16)=25460, 25472, 25478, 25468 		!TARGE
+k_c_lista(1, 2, 16)=24383, 24387, 24321, 24373, 24378  !CONTA
+
+!styk œrub i k¹twoników
+k_c_lista(1, 1, 17)=26537, 26533, 26541, 26544	 	!TARGE
+k_c_lista(1, 2, 17)=23269, 23374, 23379, 23384, 23389 	!CONTA
+k_c_lista(1, 1, 18)=26637, 26633, 26641, 26644		!TARGE
+k_c_lista(1, 2, 18)=23329, 23412, 23417, 23422, 23427  !CONTA
+k_c_lista(1, 1, 19)=26837, 26833, 26841, 26844 		!TARGE
+k_c_lista(1, 2, 19)=24351, 24355, 24359, 24363, 24276 	!CONTA
+k_c_lista(1, 1, 20)=26737, 26733, 26741, 26744 		!TARGE
+k_c_lista(1, 2, 20)=24323, 24388, 24384, 24379, 24374 	!CONTA
+!styk œrub i p³yty
+k_c_lista(1, 1, 21)=26558, 26563, 26554, 26551		!TARGE
+k_c_lista(1, 2, 21)=25221, 25232, 25243, 25238 		!CONTA
+k_c_lista(1, 1, 22)=26658, 26663, 26654, 26651 		!TARGE
+k_c_lista(1, 2, 22)=25284, 25273, 25262, 25279	 	!CONTA
+k_c_lista(1, 1, 23)=26858, 26863, 26854, 26851		!TARGE
+k_c_lista(1, 2, 23)=25417, 25434, 25439, 25428 		!CONTA
+k_c_lista(1, 1, 24)=26758, 26763, 26754, 26751 		!TARGE
+k_c_lista(1, 2, 24)=25480, 25475, 25458, 25469		!CONTA
+
+/eof

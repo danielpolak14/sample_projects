@@ -1,0 +1,33 @@
+!Tworzenie œrub, ³¹cz¹cych k¹towniki z belk¹ i p³yt¹.
+!*****parametry*****
+
+!*****tworzenie modeli*****
+	CSYS, 21
+	!belka-k¹towniki
+	WPCSYS
+
+	WPOFFS, bk_bok/2+uch_kt_gr, 0, uch_kt_otwg_pdlu
+	WPROTA, 0, 0, -90
+
+	*DO, ind, 1, 3, 1
+		WPROTA, 45, 0, 0
+  		*USE, utworz_srube_volu, 26000+100*ind, srub_lbnk_sr, srub_lbnk_wys, srub_sr, bk_bok+2*uch_kt_gr, sr_obciazenie_wstepne, 2, 2, 2, 20
+  		WPROTA, -45, 0, 0
+		WPOFFS, uch_kt_otwg_roz, 0, 0
+	*ENDDO
+
+	!p³yta-k¹towniki
+	WPCSYS
+	WPOFFS, bk_bok/2+uch_kt_szer-uch_kt_otw_pszer, -bk_bok/2-bk_odl_od_pl+uch_kt_gr, uch_kt_otwd_pdlu
+	WPROTA, 0, 90, 0
+	*DO, ind, 0, 1, 1
+		WPOFFS, -1*(2*(uch_kt_szer-uch_kt_otw_pszer)+bk_bok)*ind, 0, 0
+		*DO, ind2, 0, 1, 1
+			WPOFFS, 0, uch_kt_otwd_roz*(ind2*(1-ind)+ind2*(-1)*ind), 0
+			WPROTA, 45, 0, 0
+			*USE, utworz_srube_volu, 26500+200*ind+100*ind2, srub_lbnk_sr, srub_lbnk_wys, srub_sr, uch_pl_wys+uch_kt_gr, sr_obciazenie_wstepne, 2, 2, 2, 20
+			WPROTA, -45, 0, 0
+		*ENDDO
+	*ENDDO
+	
+	WPCSYS

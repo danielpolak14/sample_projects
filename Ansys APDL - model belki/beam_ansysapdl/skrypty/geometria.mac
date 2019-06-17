@@ -1,0 +1,343 @@
+!**********parametry***********
+	!wymiary belki
+	bk_dlu=600
+	bk_bok=34
+	bk_gr=2
+	bk_odl_od_pl=8
+
+	!wymiary odwaznika
+	odw_dlu_bok=69
+	odw_szer=24
+	odw_pozycja='p'	!po³o¿enie odwa¿nika - k - koniec belki, p - pocz¹tek belki
+
+	!parametry pomocnicze zwi¹zane z po³o¿eniem œrub na p³ycie
+	uch_sr_odl_dlu=25		!odleg³oœæ od obrysu na d³ugoœci p³yty
+	uch_sr_odl_szer=20		!odleg³oœæ od obrysu na szerokoœci p³yty
+	uch_sr_plyt_dlu_roz=33	!rozstaw, miêdzy œrubami bli¿ej i dalej zew. krawêdi
+
+	!wymiary k¹towników
+	uch_kt_dlu=78
+	uch_kt_szer=40
+	uch_kt_gr=4
+	!umiejscowienie otworów pod œruby na k¹townikach
+	uch_kt_otw_pszer=15
+	uch_kt_otwd_pdlu=uch_sr_odl_szer
+	uch_kt_otwd_roz=uch_kt_dlu-2*uch_kt_otwd_pdlu
+	uch_kt_otwg_pdlu=10
+	uch_kt_otwg_roz=29
+	uch_kt_podkl_sr=13
+	!boki kwadratów, w których znajdowaæ siê bêdzie geometria otworów
+	uch_kt_kwad_gor=bk_bok/2
+	uch_kt_kwad_dol=uch_kt_otwg_roz-uch_kt_kwad_gor/2
+
+	!wymiary p³ytki stalowej
+	uch_pl_dlu=200
+	uch_pl_szer=78
+	uch_pl_wys=20
+	!p - bok kwadratu, w którym znajdowaæ siê bêdzie geom. otoworu na p³ycie
+	p=uch_kt_kwad_dol
+
+!****modelowanie geometrii*****
+!>>> lokalny uk³ad wspó³rzêdnych
+	!utworzenie uk³adu zwi¹zanego z belk¹. Oœ z jest zgodna z kierunkiem
+	!wzd³u¿nym i œrodkiem przekroju belki.
+	szer=-st_szer/2+kt_gr+kt_szer
+	wys=uch_pl_wys+bk_odl_od_pl+bk_bok/2+poz_gor_wys-kt_gr
+	dlu=-st_dlu/2+uch_pl_dlu/2-6.25
+	LOCAL, 21, CART, szer, wys, dlu, 0, 0, 90
+	*SET, szer
+	*SET, wys
+	*SET, dlu
+	CSYS, 21
+	WPCSYS, 1, 21
+
+!>>>belka
+	*USE, ustaw_numerowanie, 21000
+	BLC4, -bk_bok/2, -bk_bok/2, bk_bok, bk_bok, bk_dlu
+
+!>>>odwa¿nik
+	*USE, ustaw_numerowanie, 22000
+
+	*IF, odw_pozycja, EQ, 'k', THEN
+		odstep=bk_dlu-odw_szer
+	*ELSE
+		odstep=uch_pl_szer+2
+	*ENDIF
+	K,, bk_bok/2, 		bk_bok/2, 		odstep
+	K,, odw_dlu_bok/2, 	odw_dlu_bok/2, 	odstep
+	K,, odw_dlu_bok/2, 	odw_dlu_bok/2, 	odstep+odw_szer
+	K,, bk_bok/2, 		bk_bok/2, 		odstep+odw_szer
+
+	KSYMM, Y, 22000, 22003, 1
+	V, 22000, 22001, 22002, 22003, 22004, 22005, 22006, 22007
+	VSYMM, X, 22000
+	V, 22000, 22001, 22002, 22003, 22008, 22009, 22010, 22011
+	V, 22004, 22005, 22006, 22007, 22013, 22012, 22014, 22015
+
+!>>>k¹towniki
+	!***pierwszy k¹townik***
+	
+	WPOFFS, bk_bok/2, -bk_bok/2-bk_odl_od_pl, 0
+	*USE,utworz_katownik_volu, uch_kt_szer, uch_kt_dlu, uch_kt_gr, 1, 230
+	*USE, ustaw_numerowanie, 23000
+	WPROTA, 0, 0, 90
+	WPOFFS, -uch_kt_otwg_pdlu, uch_kt_szer-uch_kt_otw_pszer
+	WPROTA, 45
+	CYL4, 0, 0, uch_kt_podkl_sr/2,, srub_sr/2,, uch_kt_gr
+	WPROTA, -45
+	VGEN, 3, 23002,,, 0, 0, uch_kt_otwg_roz
+	VSEL, S,,, 23002, 23004, 1
+	CM, otworyTemp, VOLU
+	VSEL, ALL
+	VSBV, 23001, otworyTemp,,, KEEP
+	VDELE, 23005, 23007, 1, 1
+	CMDELE, otworyTemp
+
+	WPROTA, 0, 90, 0
+	VSEL, S,,, 23000, 23999
+	WPOFFS, uch_kt_kwad_gor/2, 0, -uch_kt_kwad_gor/2
+	VSBW, ALL
+	WPROTA, 0, 0, -90
+	VSBW, ALL
+	WPOFFS, uch_kt_kwad_gor, 0, 2*uch_kt_otwg_roz+uch_kt_kwad_gor
+	VSBW, ALL
+	WPROTA, 0, 0, 90
+	VSBW, ALL
+	VSEL, U,,, 23000, 23012, 6
+
+	WPOFFS, 0, uch_kt_szer-uch_kt_otw_pszer-uch_kt_kwad_dol/2, 0
+	WPROTA, 0, 90, 0
+	VSEL, S,,, 23000, 23999
+	VSBW, ALL
+ 	VSEL, U,,, 23020
+
+	WPROTA, -90, -90, 0
+	WPOFFS, 0, 0, uch_kt_kwad_gor
+	VSBW, ALL
+	VSEL, A,,, 23020
+	WPOFFS, 0, 0, uch_kt_otwg_roz
+	VSBW, ALL
+	WPOFFS, 0, 0, -uch_kt_kwad_gor
+	VSBW, ALL
+	VSEL, U,,, 23027
+	WPOFFS, 0, 0, uch_kt_otwg_roz
+	VSBW, ALL
+	VSEL, A,,, 23027
+	WPOFFS, 0, 0, uch_kt_kwad_gor/2
+	VSBW, ALL
+	WPOFFS, 0, 0, -2*uch_kt_otwg_roz
+	VSBW, ALL
+	WPOFFS, 0, uch_kt_kwad_dol, 0
+	WPROTA, 0, 90, 0
+	VSBW, ALL
+
+	*DO, ind, 0, 2, 1
+		WPCSYS
+		VSEL, S,,, 23000, 23999
+		VSEL, R, LOC, Y, -uch_kt_kwad_gor/2, uch_kt_kwad_gor/2
+		VSEL, R, LOC, Z, uch_kt_otwg_pdlu+ind*uch_kt_otwg_roz-uch_kt_kwad_gor/2, uch_kt_otwg_pdlu+ind*uch_kt_otwg_roz+uch_kt_kwad_gor/2
+		WPOFFS, 0, 0, uch_kt_otwg_pdlu+ind*uch_kt_otwg_roz
+		WPROTA, 0, 45, 0
+		VSBW, ALL
+		WPROTA, 0, 90, 0
+		VSBW, ALL
+	*ENDDO
+
+	VSEL, ALL
+
+	LWPLAN,, 23249, 0
+	WPROTA, 0, 90, 0
+	WPOFFS, uch_kt_otwd_pdlu, uch_kt_otw_pszer, 0
+	CYL4,,, uch_kt_podkl_sr/2, 350, srub_sr/2,, uch_kt_gr
+	VGEN, 2, 23070,,, 0, 0, uch_kt_otwd_roz
+
+	CSWPLA, 100, CART
+	K,, 0, 0, 0
+	K,, 0, 0, uch_kt_gr
+	K,, uch_kt_otwd_roz, 0, 0
+	K,, uch_kt_otwd_roz, 0, uch_kt_gr
+
+	VGEN, 2, 23073,,, uch_kt_otwd_roz, 0, 0
+
+	VSEL, S,,, 23000, 23999
+	A, 23212, 23213, 23112, 23113
+	A, 23212, 23213, 23138, 23139
+	A, 23212, 23213, 23148, 23149
+	A, 23212, 23213, 23190, 23191
+	A, 23212, 23213, 23192, 23193
+ 	ASEL, S,,, 23349, 23353
+	VSBA, ALL, ALL
+
+	VSEL, S,,, 23000, 23999
+	A, 23214, 23215, 23162, 23163
+	A, 23214, 23215, 23104, 23105
+	A, 23214, 23215, 23126, 23127
+	A, 23214, 23215, 23194, 23195
+	A, 23214, 23215, 23185, 23184
+	ASEL, S,,, 23320, 23321
+	ASEL, A,,, 23271, 23272
+	ASEL, A,,, 23323
+	VSBA, ALL, ALL
+	ALLSEL, ALL
+
+	VSEL, S,,, 23085, 23086
+	VSEL, A,,, 23074
+	VSEL, A,,, 23094, 23095
+	VDELE, ALL,,, 1
+	
+	ALLSEL, ALL
+	WPCSYS
+	WPROTA, 90, 0, 0
+	CYL4, 0, 0, uch_kt_podkl_sr/2, -180, srub_sr/2,, uch_kt_gr
+	VSBV, 23060, 23087,,, KEEP
+	VSBV, 23074, 23090,,, KEEP
+
+	WPCSYS
+	WPOFFS, uch_kt_otwd_roz, 0, 0
+	WPROTA, 60, 0, 0
+	CYL4, 0, 0, uch_kt_podkl_sr/2, -180, srub_sr/2,, uch_kt_gr
+	VSBV, 23074, 23096,,, KEEP
+	VSBV, 23075, 23099,,, KEEP
+
+	ALLSEL, ALL
+	VSEL, S,,, 23000, 23999
+	ASLV, S
+	LSLA, S
+	KSLL, S
+	NUMMRG, KP
+
+	VSBV, 23081, 23088,,, KEEP
+ 	VSBV, 23076, 23087,,, KEEP
+ 	VSBV, 23083, 23060,,, KEEP
+ 	VSBV, 23084, 23090,,, KEEP
+ 	VSBV, 23082, 23089,,, KEEP
+
+	VSBV, 23091, 23097,,, KEEP
+	VSBV, 23073, 23096,,, KEEP
+	VSBV, 23061, 23074,,, KEEP
+ 	VSBV, 23093, 23099,,, KEEP
+ 	VSBV, 23092, 23098,,, KEEP
+
+	LSEL, S,,, 23453
+	LSEL, A,,, 23488
+	ASLL, S
+	VSLA, S
+	VDELE, ALL,,, 1
+
+	ALLSEL, ALL
+	VSEL, S,,, 23000, 23999
+	ASLV, S
+	LSLA, S
+	KSLL, S
+	NUMMRG, KP
+
+	CSYS, 21
+	WPCSYS
+	CSDELE, 100
+	ALLSEL, ALL
+
+	!***wykonanie otworów w belce***
+	!tworzenie gometrii podzia³u
+	VSEL, S,,, 23000, 23999
+	VGEN, 1, ALL,,, 10, 0, 0,,, 1
+
+	ASEL, S,,, 23000, 23999
+	ASEL, R, LOC, X, bk_bok/2-9.9,bk_bok/2+10.1
+	ASEL, R, LOC, Y, -100, uch_kt_kwad_gor/2+0.1
+	*USE, ustaw_numerowanie, 29000
+	VEXT, ALL,,, -bk_bok-20, 0, 0
+
+	ASEL, R, LOC, Y, uch_kt_kwad_gor/2-0.1,uch_kt_kwad_gor/2+0.1
+	VEXT, ALL,,, 0, 50, 0
+	ASEL, S,,, 29000, 29999
+	ASEL, R, LOC, Z, uch_pl_szer-0.1, uch_pl_szer+0.1
+	VEXT, ALL,,, 0, 0, 1000
+	VDELE, 29000, 29999
+	VSEL, ALL
+	ASEL, S,,, 29000, 29999
+	ASEL, R, LOC, X, -1, 1
+
+	!podzia³
+	*USE, ustaw_numerowanie, 21000
+	VSBA, 21000, ALL
+	!usuniêcie geometrii podzia³u
+	ASEL, S,,, 29000, 29999
+	ADELE, ALL,,, 1
+	VSEL, S,,, 23000, 23999
+	VGEN, 1, ALL,,, -10, 0, 0,,, 1
+	
+	VSEL, ALL
+	VDELE, 21058, 21060, 1, 1
+
+	!***drugi k¹townik***
+	!odbicie
+	*USE, ustaw_numerowanie, 24000
+	VSEL, S,,, 23000, 24000
+	VSYMM, X, ALL
+	ALLSEL, ALL
+
+!>>>p³yta uchwytu
+	!zarezerwowane numery obiektów od 20400 do 20599
+	*USE, ustaw_numerowanie, 25000
+	!tworzenie geometrii otworów pod œruby
+	CSYS, 21
+	WPCSYS
+
+	WPOFFS, uch_pl_dlu/2-uch_sr_odl_dlu, -bk_bok/2-bk_odl_od_pl, uch_sr_odl_szer
+
+
+	WPROTA, 0, 90, 0
+
+	BLC4, -p/2, -p/2, p, p, uch_pl_wys
+
+	WPROTA, 45, 0, 0
+	CYL4, 0, 0, uch_kt_podkl_sr/2,, srub_sr/2,, uch_pl_wys
+	VSBV, 25000, 25001,,, KEEP
+	VDELE, 25002,,, 1
+	WPROTA, 0, 90, 0
+	VSEL, S,,, 25000, 25999
+	VSBW, ALL
+	WPROTA, 0, 0, 90
+	VSBW, ALL
+ 	VOFFST, 25005, uch_sr_odl_dlu-p/2
+	ASEL, S,,, 25002
+	ASEL, A,,, 25009
+	VEXT, ALL,,, 0, 0, -uch_sr_odl_szer+p/2
+	!odbicie symetryczne
+	CLOCAL, 100, CART, 0, 0, uch_pl_szer/2
+	VSEL, S,,, 25000, 25999
+	VSYMM, Z, ALL
+	!po³¹czenie objêtoœci
+	ASEL, S,,, 25003
+	ASEL, A,,, 25011
+	VEXT, ALL,,, 0, 0, uch_pl_szer-uch_sr_odl_szer*2-p
+	VSYM, X, ALL
+	!otwory przy k¹townikach
+	ALLSEL, ALL
+	VSEL, S,,, 25000, 25999
+	VSEL, R, LOC, X, uch_pl_dlu/2-uch_sr_odl_dlu-p/2, uch_pl_dlu/2-uch_sr_odl_dlu+p/2
+
+	VGEN, 2, ALL,,, -uch_sr_plyt_dlu_roz, 0, 0
+	ASEL, S,,, 25000, 25999
+	ASEL, R, LOC, X, uch_pl_dlu/2-uch_sr_odl_dlu-p/2-0.1, uch_pl_dlu/2-uch_sr_odl_dlu-p/2+0.1
+	VEXT, ALL,,, -uch_sr_plyt_dlu_roz+p, 0, 0
+
+	VSEL, R, LOC, X, 0, uch_pl_dlu-uch_sr_odl_dlu-p/2
+	VSYMM, X, ALL
+
+	ASEL, S,,, 25000, 25999
+	ASEL, R, LOC, X, 0, uch_pl_dlu/2-uch_sr_odl_dlu-uch_sr_plyt_dlu_roz-p/2+0.1
+	VEXT, ALL,,, -uch_pl_dlu+2*uch_sr_odl_dlu+2*uch_sr_plyt_dlu_roz+p, 0, 0
+	
+	!po³¹czenie punktów
+	VSEL, S,,, 25000, 25999
+	ASLV, S
+	LSLA, S
+	KSLL, S
+	NUMMRG, KP
+
+	!prze³¹czenie ukladu na globalny
+	CSYS, CART
+	WPCSYS, 1, CART
+
+	ALLSEL, ALL

@@ -1,0 +1,118 @@
+FINISH
+/CLEAR
+/FILNAME,,1				!0 - kontynuacja starych plików .err, .log itd.
+						!1 - tworzenie nowych
+/TITLE,
+/UNITS,USER,1000,,,,273.15,,, !jednostki:
+						!mm,kg,s,st. Celcujsza,coulomby,newtony,joule
+
+!ustawienia czcionki
+/DEV, FONT, 1, '@Arial*Unicode*MS', 400, 0, -17, 0, 0
+/DEV, FONT, 2, '@Arial*Unicode*MS', 400, 0, -13, 0, 0
+/DEV, FONT, 3, '@Arial*Unicode*MS', 400, 0, -10, 0, 0
+
+	!***wybranie biblioteki makr***
+		*ulib, 'skrypty/makra', 'mac'
+
+
+
+!Debuggowanie
+!
+!W celu zatrzymania skryptu w okreœlonym miejscu nale¿y za odpowiednimi liniami
+!kodu wstawiæ komendê:
+!/EOF
+!(uwaga: wszystkie przyciski z wyj¹tkiem 'URUCHOM' na pasku Toolbar przestan¹
+!dzia³aæ)
+
+!Flaga, do sprawdzenia czy tworzony jest model ca³oœci uk³adu, czy podzespó³.
+!Konieczna do wczytywania skryptów z w³aœciwych folderów.
+calosc_FLAG=0
+
+!>>>>>>>>>>>>>>>>preprocesor<<<<<<<<<<<<<<<<
+/PREP7
+
+	!***wczytanie parametrów***
+		/INPUT, 'skrypty/inicjalizacja','mac'
+
+	!***tworzenie geometrii***
+		/INPUT, 'skrypty/geometria','mac'
+
+	!***definicja materia³ów i elementów***
+		/INPUT, 'skrypty/materialy_elementy','mac'
+
+	!***podzia³ na elementy skoñczone***
+		/INPUT, 'skrypty/siatka','mac'
+
+	!***utworzenie kontaktów***
+		!/INPUT, 'skrypty/kontakty','mac'
+
+	!***przy³o¿enie war. brzegowych i obci¹¿eñ***
+		/INPUT, 'skrypty/obciazenia','mac'
+
+	!***zapisanie g³ównej czêœci modelu do pliku .db***
+		/INPUT, 'skrypty/analiza_modalna','mac'
+		SAVE, 'skrypty/model','db',, MODEL
+
+	!***wczytanie informacji o po³o¿eniu czujników***
+		/INPUT, 'skrypty/czujniki', 'mac'
+FINISH
+
+
+
+!>>>>>>>>>>>>>>>>>>solver<<<<<<<<<<<<<<<<<<<
+
+!>>>analiza statyczna
+/SOL
+	!Wykonanie analizy statycznej jest konieczne do uzyskania wyników
+	!uwzglêdniaj¹cych naprê¿enia wstêpne i pliku .esav, który jest niezbêdny do
+	!wykonania analizy modalnej z uwzglêdnieniem tych naprê¿eñ.
+		!ATYPE, 1
+		!SOLVE
+FINISH
+
+!>>>analiza modalna
+/SOL
+    	!***ustawienia dotycz¹ce analizy modalnej***
+		/INPUT, 'skrypty/analiza_modalna','mac'
+
+	!***wykonanie symulacji***
+		SOLVE
+
+FINISH
+
+
+
+!>>>>>>>>>>>>>>postprocesor<<<<<<<<<<<<<<<<<
+
+!>>>POST26
+/POST26
+
+	!***definicja zmiennych postprocesora 26***
+		!/INPUT, 'skrypty/postprocesor26', 'mac'
+
+FINISH
+
+!>>>POST1
+/POST1
+	!***Zapisanie danych do pliku***
+		/INPUT, 'skrypty/postprocesor1', 'mac'
+
+	!***wyœwietlenie tabeli z wynikami***
+		!SET, LIST
+
+	!***wyœwietlenie pierwszego zbioru rozwi¹zañ***
+		!SET, FIRST
+		!PLNSOL, U, SUM, 2, 1.0	!odkszta³cenia
+		!PLNSOL, S,EQV, 1,1.0 	!naprê¿enia zredukowane
+
+FINISH
+
+
+
+!>>>>>>>ustawienia koñcowe interfejsu<<<<<<<
+
+	!***ustawienie wyœwietlania***
+		/INPUT, 'skrypty/wyswietlanie','mac'
+
+	!***wybór biblioteki makr***
+		*ulib, 'start_makra', 'mac'      !prze³¹czenie biblioteki

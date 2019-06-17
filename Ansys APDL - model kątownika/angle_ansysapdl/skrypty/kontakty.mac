@@ -1,0 +1,43 @@
+!Relacje miêdzy oddzielnymi obszarami modelu.
+
+!****Kontakty i sprzê¿enia st. swobody****
+	!parametry
+	tolerancja=0  !tolerancja - domyœlna wartoœæ, od której zale¿y wielkoœæ
+			    !             tworzonych obszarów powierzchni kontaktowych.
+			    !		   (mo¿e zostaæ zmieniona indywidualnie dla danej
+			    !             pary na liœcie)
+
+	!liczba porz¹dkowa tworzonych par
+	ostatnia_para=0
+
+	!wyczytanie list kontaktów do utworzenia
+	*IF, calosc_FLAG, EQ, 1, THEN
+		/INPUT, 'skrypty/belka_solid_v05/skrypty/kontakty_tabela', 'mac'
+	*ELSE
+		/INPUT, 'skrypty/kontakty_tabela', 'mac'
+	*ENDIF
+
+	!zapisanie numeru ostatniego utworzonego elementu, w celu zgrupowania
+	!tworzonych elementów kontaktowych
+	*GET, pierwszy_element, ELEM,, NUM, MAXD
+	pierwszy_element=pierwszy_element+1
+
+	!utworzenie kontaktów miêdzy powierzchniami, okreœlonymi na liœcie 'k_lista'
+	*GET, wymiar, PARM, k_lista, DIM, 2
+	*DO, ind, 1, wymiar, 1
+		*USE,kontakt_powierzchni, ostatnia_para+1, k_lista(1,ind), k_lista(2,ind), k_lista(3,ind), k_lista(4,ind)
+	*ENDDO
+
+	!grupowanie utworzonych elementów kontaktowych
+	*GET, ostatni_element, ELEM,, NUM, MAXD
+	ESEL, S,,, pierwszy_element, ostatni_element, 1
+	CM, elem_kontaktowe_belka, ELEM
+
+	!usuniêcie tablic z pamiêci
+	*SET, k_lista
+	*SET, k_k_lista
+	*SET, pierwszy_element
+	*SET, ostatni_element
+	*SET, wymiar
+
+	ALLSEL, ALL

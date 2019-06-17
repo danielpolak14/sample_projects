@@ -1,0 +1,167 @@
+zmierz
+
+    /PMACRO
+    !KSEL,S,P
+    !*GET,nr_punktu1,KP,0,NUM,MAX
+    !KSEL,S,P
+    !*GET,nr_punktu2,KP,0,NUM,MAX
+    !odlx=KX(nr_punktu1)-KX(nr_punktu2)
+    !odly=KY(nr_punktu1)-KY(nr_punktu2)
+    !odlz=KZ(nr_punktu1)-KZ(nr_punktu2)
+    !odl=CXABS(CXABS(odlx,odly),odlz)
+
+    !*MSG,UI,nr_punktu1, nr_punktu2, odl, odlx, odly, odlz
+    !Odleglosc punktu %G od punktu %G = %G %/&
+    !Odleglosc w osi X = %G %/&
+    !Odleglosc w osi Y = %G %/&
+    !Odleglosc w osi Z = %G
+
+    !odlx=
+    !odly=
+    !odlz=
+    !odl=
+    !nr_punktu1=
+    !nr_punktu2=
+    
+    KDIST, P
+
+/EOF
+
+zmierz_wezly
+
+    /PMACRO
+    !NSEL,S,P
+    !*GET,nr_punktu1,NODE,0,NUM,MAX
+    !NSEL,S,P
+    !*GET,nr_punktu2,NODE,0,NUM,MAX
+    !odlx=NX(nr_punktu1)-NX(nr_punktu2)
+    !odly=NY(nr_punktu1)-NY(nr_punktu2)
+    !odlz=NZ(nr_punktu1)-NZ(nr_punktu2)
+    !odl=CXABS(CXABS(odlx,odly),odlz)
+
+    !*MSG,UI,nr_punktu1, nr_punktu2, odl, odlx, odly, odlz
+    !Odleglosc punktu %G od punktu %G = %G %/&
+    !Odleglosc w osi X = %G %/&
+    !Odleglosc w osi Y = %G %/&
+    !Odleglosc w osi Z = %G
+
+    !odlx=
+    !odly=
+    !odlz=
+    !odl=
+    !nr_punktu1=
+    !nr_punktu2=
+
+	NDIST, P
+
+    /EOF
+    
+uruchom
+
+    /INPUT,'skrypty/main','mac',,, 0
+
+/EOF
+
+zmien_parametry_modelu
+	/INQUIRE, sprawdzenie, EXIST, skrypty/model, db
+	*IF, sprawdzenie, EQ, 0, THEN
+		*MSG, WARN
+Brak pliku 'model.db' w folderze 'skrypty'. Zbuduj model klikajac na skrot 'UTWORZ_MODEL'.
+	*ELSE
+		/INPUT, 'skrypty/zmiana_parametrow', 'mac'
+	*ENDIF
+	*SET, p
+/EOF
+
+zrzut_ekranu
+	!ARG1 - nazwa pliku
+
+! 	*GET, akt_rout, ACTIVE, 0, ROUT
+! 	*IF, akt_rout, NE, 36, THEN
+! 		FINISH
+! 		/PREP7
+! 	*ENDIF
+! 
+! 	*GET, akt_jb, ACTIVE, 0, JOBNAM
+! 
+! 	*IF, akt_rout, NE,
+! 	/SHOW, JPEG
+! 	/SHOW, CLOSE
+
+
+
+
+/EOF
+
+wyswietl_objetosci
+
+    /PMACRO
+    VSEL,S,P
+    VPLOT
+    /EOF
+    
+    
+    wyswietl_wszystko
+    
+    VSEL,ALL
+    VPLOT
+
+/EOF
+
+
+siatka
+
+    WPSTYL
+
+/EOF
+
+nastepna_postac
+
+    SET,NEXT
+    /REPLOT
+
+/EOF
+
+poprzednia_postac
+
+    SET,PREVIOUS
+    /REPLOT
+
+/EOF
+
+normalne_wl
+
+	/PSYMB,ESYS,1
+
+/EOF
+
+normalne_wyl
+
+	/PSYMB,ESYS,0
+
+/EOF
+
+kier_pow_wl
+
+	/PSYMB,ADIR,1
+
+/EOF
+
+kier_pow_wyl
+
+	/PSYMB,ADIR,0
+
+/EOF
+
+otworz_log
+
+	*GET, jobname, ACTIVE,, JOBNAM
+	*LIST, jobname, 'log'
+	!*SET, jobname
+
+/EOF
+
+otworz_err
+
+	*LIST, ERR
+/EOF

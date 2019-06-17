@@ -1,0 +1,9 @@
+﻿  stdafx.cpp
+  Estymacja_Widma_FFT.cpp
+  DPthreads.cpp
+  DPsignals.cpp
+  DPfiles.cpp
+  Generating Code...
+  LINK : C:\Users\danie\Documents\Studia\sample_projects\C++ - widmo FFT\Estymacja_Widma_FFT\Debug\Estymacja_Widma_FFT.exe not found or not built by the last incremental link; performing full link
+  Estymacja_Widma_FFT.vcxproj -> C:\Users\danie\Documents\Studia\sample_projects\C++ - widmo FFT\Estymacja_Widma_FFT\Debug\Estymacja_Widma_FFT.exe
+  Estymacja_Widma_FFT.vcxproj -> C:\Users\danie\Documents\Studia\sample_projects\C++ - widmo FFT\Estymacja_Widma_FFT\Debug\Estymacja_Widma_FFT.pdb (Full PDB)

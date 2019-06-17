@@ -1,0 +1,75 @@
+!******lista czujników******
+	!listy po³o¿eñ czujników w kolejnych seriach
+	!nr 		 po³.  po³.  po³.  wspó³-  zwrot pierw ostat
+	!czujnika  X	  Y	   Z     rzêdna	   seria seria
+
+	!lista czujników
+	*DIM, czuj, ARRAY, 8, 10
+	czuj(1,1)=   1, kt_szer-kt_otw_pol,  0,    kt_dlu_przedl+kt_otw_roz, 2, -1
+	czuj(1,2)=   2, 0, -kt_szer+kt_otw_pol,    kt_dlu_przedl+kt_otw_roz, 1,  1
+	czuj(1,3)=   3, kt_szer-kt_otw_pol,  0, kt_dlu_przedl+ 6*kt_otw_roz, 2, -1
+	czuj(1,4)=   4, 0, -kt_szer+kt_otw_pol, kt_dlu_przedl+ 6*kt_otw_roz, 1,  1
+	czuj(1,5)=   5, kt_szer-kt_otw_pol,  0, kt_dlu_przedl+11*kt_otw_roz, 2, -1
+	czuj(1,6)=   6, 0, -kt_szer+kt_otw_pol, kt_dlu_przedl+11*kt_otw_roz, 1,  1
+	czuj(1,7)=   7, kt_szer-kt_otw_pol,  0, kt_dlu_przedl+16*kt_otw_roz, 2, -1
+	czuj(1,8)=   8, 0, -kt_szer+kt_otw_pol, kt_dlu_przedl+16*kt_otw_roz, 1,  1
+	czuj(1,9)=   9, kt_szer-kt_otw_pol,  0, kt_dlu_przedl+22*kt_otw_roz, 2, -1
+	czuj(1,10)= 10, 0, -kt_szer+kt_otw_pol, kt_dlu_przedl+22*kt_otw_roz, 1,  1
+	*MFUN, lista, TRAN, czuj
+	*SET, czuj
+
+	!lista wêz³ów, których po³o¿enie jest najbli¿sze po³o¿eniom czujników
+	!(czuj_l_wezlow) oraz wektor numerów stopni swobody w bazie,
+	!odpowiadaj¹cych pomiarom z tych czujników
+
+	!lista wêz³ów
+	NSEL, ALL
+	*GET, wymiar, PARM, lista, DIM, 1
+	!usuniêcie z pamiêci dotychczasowej tablicy, je¿eli istnia³a
+	*SET, czuj_l_wezlow
+	!alokacja dla nowej tablicy
+	*DIM, czuj_l_wezlow, ARRAY, wymiar, 6
+	!wektor st. swobody
+	NumDof=6 	!liczba stopni swobody przypadaj¹cych na jeden wêze³
+			!(komenda /STATUS)
+
+	*DO, ind, 1, wymiar, 1
+		!lista wêz³ów
+		N, 31999, lista(ind, 2), lista(ind, 3), lista(ind, 4)
+		numer=NNEAR(31999)
+		czuj_l_wezlow(ind, 1)= lista(ind, 1)		!nr czujnika
+		czuj_l_wezlow(ind, 2)= numer				!nr wêz³a
+		czuj_l_wezlow(ind, 3)= lista(ind, 5)		!kierunek (st. swobody)
+		czuj_l_wezlow(ind, 4)= lista(ind, 7)		!numer pierwszej serii
+											!bez zmiany po³o¿enia
+		czuj_l_wezlow(ind, 5)= lista(ind, 8)		!numer ostatniej serii
+											!bez zmiany po³o¿enia
+		czuj_l_wezlow(ind, 6)= DISTND(31999, numer)	!b³¹d wzglêdem po³. czujnika
+
+		NDELE, 31999
+	*ENDDO
+
+	!utworzenie sto¿ków, wskazuj¹cych dok³adne po³o¿enie czujników i
+	!zgrupowanie tych sto¿ków w podzespó³
+ 	*DO, ind, 1, wymiar, 1
+ 		*USE, ustaw_numerowanie, 50100+100*ind
+ 		*USE, utworz_stozek, lista(ind, 2), lista(ind, 3), lista(ind, 4), lista(ind, 5), lista(ind, 6)
+ 	*ENDDO
+	VSEL, S,,, 50000, 59999
+	CM, czujniki_volu, VOLU
+
+ 	NSEL, NONE
+ 	*DO, ind, 1, wymiar, 1
+ 		NSEL, A,,, czuj_l_wezlow(ind,1)
+ 	*ENDDO
+	CM, czujniki_node, NODE
+
+	!ustawienie kolorów sto¿ków wskazuj¹cych umiejscowienie czujników
+	CMSEL, S, czujniki_volu
+	/COLOR, VOLU, YELL, ALL
+	ASLV, S
+	/COLOR, AREA, YELL, ALL
+
+	*SET, lista
+
+ 	ALLSEL, ALL

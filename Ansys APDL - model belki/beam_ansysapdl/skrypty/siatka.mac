@@ -1,0 +1,70 @@
+!Podzia³ geometrii na elementy skoñczone.
+
+!***parametry i ustawienia ogólne siatki***
+	!preferowany rozmiar elementów na  belce
+	bk_elem_rozm=10
+	!k¹towniki
+	uch_kt_elem_rozm=10		!preferowany rozmiar elementów
+	uch_kt_elem_podz_gr=2	!iloœæ podzia³ów na gruboœci k¹towników
+	!p³yta
+	uch_pl_elem_rozm=10		!preferowany rozmiar elementów
+	uch_pl_elem_podz_gr=3	!iloœæ podzia³ów na gruboœci p³yty
+	!otwory pod œruby wszystkich elementach geometrii
+	uch_sr_elem_podz=2		!iloœæ podzia³ów na elementy wzd³u¿ promienia otworów
+
+	!ustawienia metod i przypisanie w³asnoœci do obszarów
+	!wybór sposobu tworzenia siatki
+	MSHKEY, 2 	!mapped - jeœli mo¿liwe, free - w innym wypadku
+
+!***przypisanie w³asnoœci do obszarów***
+	
+	!ustawienia rozmiaru siatki
+
+	!belka
+	LESIZE, 21269,,, uch_sr_elem_podz
+	LESIZE, 21229,,, uch_sr_elem_podz
+	LESIZE, 21334,,, uch_sr_elem_podz
+	!odwa¿nik - przyjêto arbitralnie ma³¹ liczbê podzia³ów
+	LESIZE, 22000,,, 2
+	LESIZE, 22001,,, 3
+	LESIZE, 22004,,, 4
+	LESIZE, 22016,,, 4
+	LESIZE, 22024,,, 4
+	LESIZE, 22028,,, 4
+	!k¹towniki
+	LESIZE, 23000,,, 2	!il. elem. na gruboœci
+	LESIZE, 24000,,, 2
+	LESIZE, 23311,,, uch_sr_elem_podz !il. elem. pod œrubami
+	LESIZE, 23423,,, uch_sr_elem_podz
+	LESIZE, 23357,,, uch_sr_elem_podz
+	LESIZE, 23517,,, uch_sr_elem_podz
+	LESIZE, 23568,,, uch_sr_elem_podz
+	LESIZE, 24252,,, uch_sr_elem_podz
+	LESIZE, 24430,,, uch_sr_elem_podz
+	LESIZE, 24407,,, uch_sr_elem_podz
+	LESIZE, 24489,,, uch_sr_elem_podz
+	LESIZE, 24516,,, uch_sr_elem_podz
+	!p³yta
+	LESIZE, 25203,,, uch_pl_elem_podz !il. podzia³ów na gruboœci
+	LESIZE, 25176,,, uch_sr_elem_podz !il. elem. pod œrubami
+	LESIZE, 25283,,, uch_sr_elem_podz
+	LESIZE, 25610,,, uch_sr_elem_podz
+	LESIZE, 25700,,, uch_sr_elem_podz
+	LESIZE, 25318,,, uch_sr_elem_podz
+	LESIZE, 25402,,, uch_sr_elem_podz
+	LESIZE, 25108,,, uch_sr_elem_podz
+	LESIZE, 25033,,, uch_sr_elem_podz
+!***utworzenie siatki***
+	!siatka belki z uchwytem
+	TYPE, 	20	!SOLID185
+	MAT, 	20
+
+	ESIZE, bk_elem_rozm
+	VMESH, 21000, 22999
+
+	ESIZE, uch_kt_elem_rozm
+	VMESH, 23000, 24999
+
+
+	ESIZE, uch_pl_elem_rozm
+	VMESH, 25000, 25999

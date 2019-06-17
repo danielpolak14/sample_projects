@@ -1,0 +1,25 @@
+*ABB,SAVE_DB ,SAVE
+*ABB,RESUM_DB,RESUME
+*ABB,QUIT    ,Fnc_/EXIT
+*ABB,POWRGRPH,Fnc_/GRAPHICS
+*ABB,UTWORZ_MODEL,*USE,uruchom
+*ABB,WPROWADZ_ZMIANY,*USE,zmien_parametry_modelu
+*ABB,*LOG,*USE,otworz_log
+*ABB,*ERR,*USE,otworz_err
+*ABB,ZRZUT_EKRANU,zrzut_ekranu 
+*ABB,KP_DIST,*USE,zmierz
+*ABB,NODE_DIST,*USE,zmierz_wezly
+*ABB,WYS_WYBRANE_VOLU,*USE,wyswietl_objetosci
+*ABB,WYS_WSZYSTKIE_VOLU,*USE,wyswietl_wszystko
+*ABB,SIATKA,*USE,siatka
+*ABB,NASTEPNA_POSTAC,*USE,nastepna_postac
+*ABB,POPRZEDNIA_POSTAC,*USE,poprzednia_postac
+*ABB,NORMALNE_WL,*USE,normalne_wl
+*ABB,NORMALNE_WYL,*USE,normalne_wyl
+*ABB,KIER_POW_WL,*USE,kier_pow_wl
+*ABB,KIER_POW_WYL,*USE,kier_pow_wyl
+
+!WPSTYL,,10,-100,100,,0,0,
+
+
+*ULIB,'start_makra','mac'

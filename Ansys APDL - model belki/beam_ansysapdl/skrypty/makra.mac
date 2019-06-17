@@ -1,0 +1,453 @@
+zestawienie_makr
+	!utworz_katownik_area
+	!ustaw_numerowanie
+	!kontakt_powierzchni
+	!sprzezenie_wezlow
+	!wybierz_pobliskie_wezly
+	!kontakt_powierzchnia_belka
+	!uruchom_skrypt
+/EOF
+
+
+ustaw_numerowanie
+	!Ustawia pocz¹tek numerowania wszystkich tworzonych obiektów geometrii
+	!zgodnie z podanym argumentem.
+	!
+	!ARG1  - numer od którego ma zostaæ rozpoczête numerowanie.
+	
+	NUMSTR, 	KP, 	 ARG1
+	NUMSTR,	LINE, ARG1
+	NUMSTR,	AREA, ARG1
+	NUMSTR,	VOLU, ARG1
+
+/EOF
+
+
+utworz_katownik_volu
+	!Tworzy objêtoœæ maj¹c¹ kszta³t k¹townika. Dodatkowo ³¹czy
+	!(opcja concatante) po dwie zewrznêtrzne i wewnêtrzne powierzchnie.
+	!
+	!ARG1  - szerokoœc k¹townika
+	!ARG2  - d³ugoœæ k¹townika
+	!ARG3  - gruboœæ k¹townika
+	!ARG4  - numer æwiartki wzglêdem WorkPlane
+	!ARG5  - numer k¹townika
+	!
+	!Po³¹czenie w pary wewnêtrznych i zewnêtrznych powierzchni ma na celu
+	!umo¿liwienie natychmiastowego utworzenia regularnej siatki (mapped mesh).
+
+	/COM, ***START: utworz_katownik_volu***
+
+	!zapamiêtanie numeru aktywnego uk³adu wspó³rzêdnych
+	*GET, akt_uklad, ACTIVE, 0, CSYS,,,
+	!obrócenie WorkPlane do odpowiedniej æwiartki
+	WPROTA, 90*(ARG4-1), 0, 0
+	!utworzenie i aktywacja tymczasowego uk³adu, zgodnego z aktualnym WorkPlane
+	CSWPLA, 100, CART
+
+	!ustawienia numeracji
+	nr=ARG5*100	!zmienna pomocnicza
+	*USE,ustaw_numerowanie, nr
+
+	!utworzenie geometrii
+	K,, 0, 	0, 	 0
+	K,, ARG1, 0, 	 0
+	K,, ARG1, ARG3, 0
+	K,, ARG3, ARG3, 0
+	K,, ARG3, ARG1, 0
+	K,, 0, 	ARG1, 0
+	K,, 0, 	0, 	 ARG2
+	K,, ARG1, 0, 	 ARG2
+	K,, ARG1, ARG3, ARG2
+	K,, ARG3, ARG3, ARG2
+	K,, ARG3, ARG1, ARG2
+	K,, 0, 	ARG1, ARG2
+
+	V, nr, nr+3, nr+2, nr+1, nr+6, nr+9, nr+8, nr+7
+	V, nr, nr+3, nr+4, nr+5, nr+6, nr+9, nr+10, nr+11
+
+	*USE,ustaw_numerowanie, 0
+
+	!usuniêcie uk³adu tymczasowego
+	CSDELE, 100
+	!aktywacja zapamiêtanego uk³adu
+	CSYS, akt_uklad
+
+	*SET, akt_uklad
+	*SET, nr
+
+	/COM, ***STOP: utworz_katownik_volu***
+/EOF
+
+
+kontakt_powierzchni
+	!Tworzy kontakty ³¹czone (typu bonded), rozwi¹zywane algorytmem MPC
+	!na styku dwóch powierzchni.
+	!
+	!ARG1 - numer porz¹dkowy pary - wyznacza numery zbioru REAL, elementów itd.
+	!ARG2 - numer powierzchni, na której zdefiniowane zostan¹
+	!       elementy typu TARGE
+	!ARG3 - orientacja normalnych powy¿szej powierzchni
+	!ARG4 - numer powierzchni, na której zdefiniowane zostan¹
+	!       elementy typu CONTA
+	!ARG5 - orientacja normalnych powy¿szej powierzchni
+	!
+	!Kontakty tworzone s¹ dok³adnie na obszarze styku powierzchni ARG2 i ARG4.
+	!Obszar ten mo¿na zmniejszyæ lub zwiêkszyæ, poprzez zmianê parametru
+	!'tolerancja' w modelu. Parametr ten jest zwi¹zany z makrem
+	!'wybierz_pobliskie_wezly'.
+
+	/COM, ***START: kontakt_powierzchni***
+
+  	*GET, akt_real, ACTIVE,, REAL
+  	*GET, akt_type, ACTIVE,, TYPE
+	R,		ARG1,,,,,,0.5
+  	REAL,	ARG1
+  	ET,		ARG1,	TARGE170
+  	ET,		ARG1+500,	CONTA174
+   	KEYOPT,	CONTA174,	2,	2	!KEYOPT(2)=2  - algorytm MPC
+   	KEYOPT,	CONTA174,	12,	5	!KEYOPT(12)=5 - kontakt typu bonded (always)
+
+	!elementy TARGE
+	*USE, wybierz_pobliskie_wezly, ARG2, ARG4, tolerancja
+  	TYPE, ARG1
+
+	*IF, ARG3, LT, 0, THEN
+  		ESURF,, BOTTOM
+	*ELSE
+		ESURF
+	*ENDIF
+
+	NSEL, ALL
+  	ASEL, ALL
+  	!elementy CONTA
+  	*USE, wybierz_pobliskie_wezly, ARG4, ARG2, tolerancja
+  	TYPE, ARG1+500
+
+  	*IF, ARG5, LT, 0, THEN
+  		ESURF,, BOTTOM
+	*ELSE
+		ESURF
+	*ENDIF
+	
+	NSEL, ALL
+  	ASEL, ALL
+  	
+  	REAL, akt_real
+	TYPE, akt_type
+	*SET, akt_real,
+  	*SET, akt_type,
+  	
+  	ostatnia_para=ostatnia_para+1
+
+	
+	/COM, ***STOP: kontakt_powierzchni***
+/EOF
+
+
+kontakt_calych_powierzchni
+	!Tworzy kontakty ³¹czone (typu bonded), rozwi¹zywane algorytmem MPC
+	!pomiêdzy dwoma zestawami ca³ych powierzchni, zapisanych w tablicy
+	!'k_c_lista'.
+	!
+	!ARG1 - numer porz¹dkowy pierwszej pary - wyznacza numery zbioru REAL,
+	!	   elementów itd. Jest inkrementowany dla kolejnych par
+	!
+	!Lista powierzchni do po³¹czenia musi znajdowaæ siê w trójwymiarowej
+	!tablisy 'k_c_lista', w której:
+	!- kolejne wiersze reprezentuj¹ kolejne pary kontaktowe
+	!- w danym wierszu, elementy na pierwszych kolumnach na kolejnych
+	!  p³aszyznach s¹ list¹ powierzchni, na której zdefiniowane bêd¹ elementy
+	!  typu TARGE i podobnie na drugich kolumnach elementy typu CONTA
+	!
+	!Kontakty tworzone s¹ z udzia³em wszystkich wêz³ów wymienionych na liœcie,
+	!powierzchnie ³¹czone s¹ w ca³oœci.
+
+	/COM, ***START: kontakt_calych_powierzchni***
+
+  	*GET, akt_real, ACTIVE,, REAL
+  	*GET, akt_type, ACTIVE,, TYPE
+
+	*GET, ilosc_kontaktow, PARM, k_c_lista, DIM, 3
+	
+	*DO, ind, 1, ilosc_kontaktow, 1
+		R,		ARG1+ind-1,,,,,,0.5
+  		REAL,	ARG1+ind-1
+		ET,		ARG1+ind-1,	TARGE170
+  		ET,		ARG1+ind+500,	CONTA174
+   		KEYOPT,	CONTA174,	2,	2	!KEYOPT(2)=2  - algorytm MPC
+   		KEYOPT,	CONTA174,	12,	5	!KEYOPT(12)=5 - kontakt typu bonded (always)
+
+		!sprawdzenie iloœci powierzchni na liœcie, na których zdefiniowane
+		!bêd¹ elementy TARGE i CONTA oraz zgrupowanie tych powierzchni w
+		!komponenty
+		*SET, ilosc_targe, 0
+		*SET, ilosc_conta, 0
+		*SET, ind2, 1
+		!zgrupowanie powierzchni TARGE i CONTA w komponenty
+		ASEL, NONE
+  		*DOWHILE, ind2
+  			*IF, k_c_lista(ilosc_targe+1, 1, ind), EQ, 0, THEN
+				ind2=0
+			*ELSE
+				ASEL, A,,, k_c_lista(ilosc_targe+1, 1, ind)
+				ilosc_targe=ilosc_targe+1
+			*ENDIF
+  		*ENDDO
+  		CM, pow_targe, AREA
+  		ASEL, NONE
+  		*SET, ind2, 1
+  		*DOWHILE, ind2
+  			*IF, k_c_lista(ilosc_conta+1, 2, ind), EQ, 0, THEN
+				ind2=0
+			*ELSE
+				ASEL, A,,, k_c_lista(ilosc_conta+1, 2, ind)
+				ilosc_conta=ilosc_conta+1
+			*ENDIF
+  		*ENDDO
+  		CM, pow_conta, AREA
+
+		!
+		!Tworzenie elementów typu TARGE
+		!
+
+ 		!wybór wêz³ów znajduj¹cych siê na powierzchniach TARGE
+       	CMSEL, S, pow_targe
+ 		NSLA, S, 1
+
+ 		!utworzenie elementów typu TARGE
+ 		TYPE, ARG1+ind-1
+ 		ESURF
+
+		!
+		!Tworzenie elementów typu CONTA
+		!
+
+ 		!wybór wêz³ów znajduj¹cych siê na powierzchniach CONTA
+       	CMSEL, S, pow_conta
+ 		NSLA, S, 1
+
+ 		!utworzenie elementów typu CONTA
+ 		TYPE, ARG1+ind+500
+ 		ESURF
+
+		ostatnia_para=ostatnia_para+1
+	*ENDDO
+
+  	REAL, akt_real
+	TYPE, akt_type
+	*SET, akt_real,
+  	*SET, akt_type,
+	*SET, ilosc_kontaktow
+	*SET, ilosc_targe
+	*SET, ilosc_conta
+	*SET, ind
+	*SET, ind2
+	CMDELE, pow_targe
+	CMDELE, pow_conta
+  	ostatnia_para=ostatnia_para+1
+
+	ALLSEL, ALL
+
+	/COM, ***STOP: kontakt_calych_powierzchni***
+/EOF
+
+
+wybierz_pobliskie_wezly
+	!Wybiera zbiór wêz³ów tworz¹cych siatkê jednej powierzchni oraz
+	!rzutowanych na inn¹ powierzchniê prostok¹tn¹
+	!
+	!ARG1 	- numer powierzchni, z której maja zostaæ wybrane wêz³y
+	!ARG2	- numer powierzchni, stanowi¹cej rzutniê
+	!ARG3	- tolerancja
+	!
+	!Dzia³anie makra ma na celu wybór wêz³ów, które mog¹ zostaæ wykorzystane
+	!do utworzenia elementów kontaktowych, równañ sprzê¿onych itp. Wynikowy
+	!zbiór wybranych wêz³ów nale¿y rozumieæ jako czêœæ wspóln¹ zbioru wêz³ów
+	!znajduj¹cych siê na powierzchni o numerze ARG1 oraz wszystkich wêz³ów
+	!znajduj¹cych siê w przestrzeni trójwymiarowej, rzutowanych na
+	!powierzchniê o numerze ARG2. Dodatkowo istnieje mo¿liwoœæ rozszerzenia
+	!obszaru powierzchni ARG2, wprowadzaj¹c tolerancjê ARG3. Makro dzia³a
+	!poprawnie tylko gdy ARG2 jest prostok¹tem.
+
+	/COM, ***START: wybierz_pobliskie_wezly***
+
+	!zapamiêtanie numeru aktywnego uk³adu wspó³rzêdnych
+	*GET,akt_uklad, ACTIVE, 0, CSYS,,,
+
+	!wybór punktów naro¿nych powierzchni ARG2 i zapisanie ich do tablicy
+	ASEL, S,,, ARG2
+	LSLA, S
+	KSLL, S
+	LSEL, ALL
+
+	*VGET, kp_pow, KP,, KLIST
+	!utworzenie i wybór uk³adu, w którym osie X i Y s¹ zgodne z kierunkami
+	!linii tworz¹cych powierzchniê ARG2, a oœ Z zgodna z jej normaln¹
+	CSKP, 100, CART, kp_pow(1), kp_pow(2), kp_pow(3)
+	CSYS, 100
+	!tworzenie tablicy ze wspó³rzêdnymi powy¿szych punktów
+	*DIM, kp_wsp, ARRAY, 4, 4
+	*DO, ind, 1, 4, 1
+		kp_wsp(1,ind)=kp_pow(ind)
+		kp_wsp(2,ind)=KX(kp_pow(ind))
+		kp_wsp(3,ind)=KY(kp_pow(ind))
+		kp_wsp(4,ind)=KZ(kp_pow(ind))
+		!sprawdzenie, który wêze³ ma niezerowe wspó³rzêdne na p³aszczyŸnie XY
+		*IF, kp_wsp(2,ind), GT, 0, AND, kp_wsp(3,ind), GT, 0, THEN
+			najdalszy=kp_pow(ind)
+		*ENDIF
+	*ENDDO
+
+	!wybór zbioru wêz³ów, których wspó³rzêdne s¹ projekcj¹ na pow. ARG2
+	NSEL, S, LOC,X, -ARG3, KX(najdalszy)+ARG3
+	NSEL, R, LOC,Y, -ARG3, KY(najdalszy)+ARG3
+
+	!wyodrêbnienie z powy¿szego zbioru wêz³ów znajduj¹cych siê na pow. ARG1
+	ASEL, S,,, ARG1
+	NSLA, R, 1
+
+	!wybór wszystkich powierzchni, linii i punktów
+	ASEL, ALL
+	LSEL, ALL
+	KSEL, ALL
+	!usuniêcie uk³adu tymczasowego
+	CSDELE, 100
+	!aktywacja zapamiêtanego uk³adu
+	CSYS, akt_uklad
+	*SET, kp_pow
+	*SET, kp_wsp
+	*SET, akt_uklad
+	*SET, najdalszy
+
+	/COM, ***STOP: wybierz_pobliskie_wezly***
+/EOF
+
+
+utworz_srube_volu
+	!Tworzy w ca³oœci model œruby napiêtej wstêpnie si³¹ w miejscu zgodnym z
+	!WorkPlane. Geometria œruby utworzona jest z objêtoœci.
+	!
+	!ARG1 - numer, od którego rozpocznie siê numerowanie obiektów geometrii.
+	!	   Do poprawnego dzia³ania makra, nale¿y przewidzieæ numer, od którego
+	!	   wystêpuje 100 wolnych z rzêdu numerów obiektów KP, LINE, AREA i VOLU.
+	!ARG2 - œrednica ³ba œruby i nakrêtki
+	!ARG3 - wysokoœæ ³b¹ œruby i nakrêtki
+	!ARG4 - œrednica rdzenia
+	!ARG5 - d³ugoœæ rdzenia (wew. czêœæ, z pominiêciem wysokoœci ³ba i nakrêtki)
+	!ARG6 - wartoœæ si³y napinaj¹cej œrubê. Je¿eli równa 0, przekrój zwi¹zany z
+	!	   napiêciem wstêpnym nie jest tworzony.
+	!ARG7 - liczba podzia³ów wzd³u¿ promienia ³ba i nakrêtki
+	!ARG8 - liczba podzia³ów na elementy skoñczone wysokoœci ³ba i nakrêtki
+	!ARG9 - liczba podzia³ów rdzenia wzd³u¿ promienia. Musi byæ liczb¹
+	!	   parzyst¹. Jest identyczna z liczb¹ podzia³ów na jednej
+	!	   czwartej obwodu nakrêtki (liczby te musz¹ byæ identyczne).
+	!AR10 - d³ugoœæ elementów podzia³u wzd³u¿ osi rdzenia.
+	!
+	!Przed wywo³aniem makra nele¿y aktywowaæ rodzaj elementu o okreœlonym
+	!numerze (elementy typu SOLID) oraz wybrany materia³ (komendy TYPE i MAT).
+	!Ponadto w modelu musi istnieæ zbiór REAL o numerze 1, o trzech pierwszych
+	!wartoœciach równych 0.
+	!
+	!Œruba tworzona jest w miejscu, w którym aktualnie znajduje siê WorkPlane.
+	!Oœ rdzenia jest zgodna z osi¹ Z. Na p³aszczyŸnie XY znajduje siê dolna
+	!czêœæ ³ba œruby - pocz¹tek rdzenia.
+
+	*GET, akt_uklad, ACTIVE,, CSYS
+	*GET, akt_real, ACTIVE,, REAL
+	!chwilowy uk³ad wspó³rzêdnych
+	CSWPLA, 100, CART
+	CSYS, 100
+
+	!utworzenie lub inkrementacja licznika przekrojów typu PRETN
+	*GET, p, PARM, licznik_pretn, TYPE
+	*IF, p, EQ, -1, THEN
+		licznik_pretn=1
+	*ELSE
+		licznik_pretn=licznik_pretn+1
+	*ENDIF
+
+	*SET, p
+
+	!
+	!geometria
+	!
+
+	*USE, ustaw_numerowanie, ARG1
+	WPOFFS, 0, 0, -ARG3
+	CYL4, 0, 0, ARG2/2,,,, ARG3
+	CYL4, 0, 0, ARG4/2,,,, ARG3
+	VSBV, ARG1, ARG1+1,,, KEEP
+	WPOFFS, 0, 0, ARG3
+
+	VSEL, S,,, ARG1, ARG1+99
+	WPROTA, 0, 90, 0
+	VSBW, ALL
+	WPROTA, 0, 0, -90
+	VSBW, ALL
+
+	VGEN, 2, ALL,,, 0, 0, ARG5+ARG3
+
+ 	ASEL, S,,, ARG1+5
+ 	ASEL, A,,, ARG1+21
+ 	ASEL, A,,, ARG1+25
+ 	ASEL, A,,, ARG1+29
+ 	VEXT, ALL,,, 0, 0, ARG5
+
+ 	KSEL, S,,, ARG1, ARG1+99
+ 	NUMMRG, KP
+
+ 	ALLSEL, ALL
+
+	!
+	!podzia³ na elementy
+	!
+
+	!definicja liczby podzia³ów
+ 	!nakrêtka i ³eb œruby
+ 	!wzd³u¿ promienia
+ 	LESIZE, ARG1+64,,, ARG7
+ 	LESIZE, ARG1+22,,, ARG7
+ 	 !wzd³u¿ wysokoœci
+  	LESIZE, ARG1+21,,, ARG8
+  	LESIZE, ARG1+31,,, ARG8
+  	!rdzeñ
+  	!wzd³u¿ promienia
+  	LESIZE, ARG1+26,,, ARG9
+  	!wzd³u¿ d³ugoœci
+  	LESIZE, ARG1+87,   AR10
+
+  	VSEL, S,,, ARG1, ARG1+99
+ 	VMESH, ALL
+
+	!
+	!na³o¿enie naprê¿eñ wstêpnych
+	!
+
+ 	*IF, ARG6, NE, 0, THEN
+ 		REAL, 1
+		!wybór elementów modelu œruby
+		ESLV, S
+
+		!definicja przekroju naprê¿eñ wstêpnych
+		PSMESH, licznik_pretn, STRCAT('pretn_', CHRVAL(licznik_pretn)),, ALL,, 100, Z, ARG5/2,,,, testtt!STRCAT('pretn_elem_', CHRVAL(licznik_pretn))
+
+		!definicja obi¹¿enia
+		SLOAD, licznik_pretn, PL01, TINY, FORC, ARG6, 1, 2
+	*ENDIF
+	
+	REAL, akt_real
+	WPCSYS
+	CSYS, akt_uklad
+	CSDELE, 100
+	*SET, akt_real
+	*SET, akt_uklad
+
+	ALLSEL, ALL
+
+/EOF
+
+
+uruchom
+	/INPUT, 'skrypty/main', 'mac'
+/EOF

@@ -1,0 +1,124 @@
+!*******************************************************************************
+!
+! Title:  Belka z uchwytem
+! Author: Daniel Polak
+!         Wydzia³ Mechaniczy Politechniki Gdañskiej
+! Date:   2019
+!
+!*******************************************************************************
+
+FINISH
+/CLEAR
+/FILNAME,,1				!0 - kontynuacja starych plików .err, .log itd.
+						!1 - tworzenie nowych
+!jednostki: !mm, kg, s, st.  C, mc, N, mJ
+/UNITS,USER,1000,0.001,,,273.15,0.001,,0.001
+!Uwaga: œrodowisko nie wspomaga operacji na niestandarowych jednostkach.
+!	   Wszystkie wielkoœci: wymiar, masa, czas, temp., ³adunek elektryczny,
+! 	   si³a, energia, s¹ wprowadzane w wymienionych wy¿ej jednostkach.
+
+!ustawienia czcionki
+/DEV, FONT, 1, '@Arial*Unicode*MS', 400, 0, -17, 0, 0
+/DEV, FONT, 2, '@Arial*Unicode*MS', 400, 0, -13, 0, 0
+/DEV, FONT, 3, '@Arial*Unicode*MS', 400, 0, -10, 0, 0
+
+	!***wybranie biblioteki makr***
+		*ULIB, 'skrypty/makra', 'mac'
+
+!Debuggowanie
+!
+!W celu zatrzymania skryptu w okreœlonym miejscu nale¿y za odpowiednimi liniami
+!kodu wstawiæ komendê:
+!/EOF
+!(uwaga: wszystkie przyciski z wyj¹tkiem 'URUCHOM' na pasku Toolbar przestan¹
+!dzia³aæ)
+
+!Flaga, do sprawdzenia czy tworzony jest model ca³oœci stanowiska, czy
+!podstruktury (rama, belka itd.). Konieczna do wczytywania skryptów z w³aœciwych
+!folderów.
+calosc_FLAG=0
+
+
+
+!>>>>>>>>>>>>>>>>preprocesor<<<<<<<<<<<<<<<<
+/PREP7
+
+	!***wczytanie parametrów***
+		/INPUT, 'skrypty/inicjalizacja','mac'
+
+	!***tworzenie geometrii***
+		/INPUT, 'skrypty/geometria','mac'
+
+	!***definicja materia³ów i elementów***
+		/INPUT, 'skrypty/materialy_elementy','mac'
+
+	!***podzia³ na elementy skoñczone***
+		/INPUT, 'skrypty/siatka','mac'
+
+	!***tworzenie modeli œrub***
+		/INPUT, 'skrypty/sruby', 'mac'
+
+	!***utworzenie kontaktów***
+		/INPUT, 'skrypty/kontakty','mac'
+
+	!***przy³o¿enie obci¹¿eñ i war. brzegowych***
+		/INPUT, 'skrypty/obciazenia','mac'
+
+	!***zapisanie g³ównej czêœci modelu do pliku .db***
+		SAVE, 'skrypty/model','db',, MODEL
+
+FINISH
+
+
+
+!>>>>>>>>>>>>>>>>>>solver<<<<<<<<<<<<<<<<<<<
+!>>>analiza statyczna
+*IF, rodzaj_analizy, EQ, 1, OR, napr_wstep_FLAG, EQ, 1, THEN
+/SOL
+	!Wykonanie analizy statycznej jest konieczne, je¿eli analiza modalna ma
+	!uwzglêdniæ naprê¿enia wstêpne (konieczne jest wczeœniejsze uzyskanie
+	!pliku .esav).
+		ATYPE, 1
+		SOLVE
+FINISH
+*ENDIF
+
+!>>>analiza modalna
+*IF, rodzaj_analizy, EQ, 2, THEN
+/SOL
+    	!***ustawienia dotycz¹ce analizy modalnej***
+    		/INPUT, 'skrypty/analiza_modalna','mac'
+
+	!***wykonanie symulacji***
+		SOLVE
+
+FINISH
+*ENDIF
+
+
+
+!>>>>>>>>>>>>>>postprocesor<<<<<<<<<<<<<<<<<
+
+!>>>POST1
+/POST1
+
+	!***wyœwietlenie tabeli z wynikami***
+		!SET, LIST
+
+	!***wyœwietlenie pierwszego zbioru rozwi¹zañ***
+		SET, FIRST
+		PLNSOL, U, SUM, 2, 1.0	!odkszta³cenia
+		!PLNSOL, S,EQV, 1,1.0 	!naprê¿enia zredukowane
+
+!FINISH
+
+
+
+
+!>>>>>>>ustawienia koñcowe interfejsu<<<<<<<
+
+	!***ustawienie wyœwietlania***
+		/INPUT, 'skrypty/wyswietlanie','mac'
+
+	!***wybór biblioteki makr***
+		*ulib, 'start_makra', 'mac'      !prze³¹czenie biblioteki

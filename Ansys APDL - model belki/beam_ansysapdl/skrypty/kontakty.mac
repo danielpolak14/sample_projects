@@ -1,0 +1,89 @@
+!Relacje miêdzy oddzielnymi obszarami modelu.
+!****Kontakty i sprzê¿enia st. swobody****
+	!parametry
+	tolerancja=0  !tolerancja - domyœlna wartoœæ, od której zale¿y wielkoœæ
+			    !             tworzonych obszarów powierzchni kontaktowych.
+			    !		   (mo¿e zostaæ zmieniona indywidualnie dla danej
+			    !             pary na liœcie)
+
+	!liczba porz¹dkowa tworzonych par
+	ostatnia_para=200
+
+	!wyczytanie list kontaktów do utworzenia
+	*IF, calosc_FLAG, EQ, 1, THEN
+		/INPUT, 'skrypty/belka/skrypty/kontakty_tabela', 'mac'
+	*ELSE
+		/INPUT, 'skrypty/kontakty_tabela', 'mac'
+	*ENDIF
+
+	!zapisanie numeru ostatniego utworzonego elementu, w celu zgrupowania
+	!tworzonych elementów kontaktowych
+	*GET, pierwszy_element, ELEM,, NUM, MAXD
+	pierwszy_element=pierwszy_element+1
+
+	!
+	!po³¹cznie belki z odwa¿nikiem
+  	!
+
+	*GET, 	akt_real, ACTIVE,, REAL
+  	*GET, 	akt_type, ACTIVE,, TYPE
+	R,		ostatnia_para+1,,,,,,0.5
+  	REAL,	ostatnia_para+1
+  	ET,		ostatnia_para+1,	TARGE170
+  	ET,		ostatnia_para+501,	CONTA173
+   	KEYOPT,	CONTA174,	2,	2	!KEYOPT(2)=2  - algorytm MPC
+   	KEYOPT,	CONTA174,	12,	5	!KEYOPT(12)=5 - kontakt typu bonded (always)
+
+	!elementy TARGE
+ 	!wybór wêz³ów na powierzchni belki w pobli¿u odwa¿nika
+	CSYS, 21
+	ASEL, S,,, 21000, 21999
+	ASEL, U,,, 21023
+	ASEL, U,,, 21029
+	ASEL, R, LOC, Z, uch_pl_szer+2, bk_dlu-2
+	NSLA, S, 1
+	NSEL, R, LOC, Z, odstep-8, odstep+odw_szer+2
+	!utworzenie siatki
+	TYPE, ostatnia_para+1
+	ESURF
+
+	ALLSEL, ALL
+
+  	!elementy CONTA
+ 	!wybór wêz³ów na wewnêtrznej czêœci odwa¿nika
+	ASEL, S,,, 22004
+	ASEL, A,,, 22010
+	ASEL, A,,, 22015
+	ASEL, A,,, 22019
+  	NSLA, S, 1
+  	!utworzenie siatki
+  	TYPE, ostatnia_para+501
+	ESURF
+
+	ALLSEL, ALL
+
+  	REAL, akt_real
+	TYPE, akt_type
+	*SET, akt_real,
+  	*SET, akt_type,
+
+	ostatnia_para=ostatnia_para+1
+
+	!
+	!kontakty w po³¹czeniach œrubowych
+	!
+	*USE, kontakt_calych_powierzchni, ostatnia_para+1
+
+	!grupowanie utworzonych elementów kontaktowych
+	*GET, ostatni_element, ELEM,, NUM, MAXD
+	ESEL, S,,, pierwszy_element, ostatni_element, 1
+	CM, elem_kontaktowe_belka, ELEM
+
+	!usuniêcie tablic z pamiêci
+	*SET, k_lista
+	*SET, k_c_lista
+	*SET, k_k_lista
+	*SET, pierwszy_element
+	*SET, ostatni_element
+	
+	ALLSEL, ALL

@@ -1,0 +1,21 @@
+!Podzia³ geometrii na elementy skoñczone.
+
+!***parametry i ustawienia ogólne siatki***
+	!parametry
+
+	!ustawienia metod i przypisanie w³asnoœci do obszarów
+	!wybór sposobu tworzenia siatki
+	MSHKEY, 2 	!mapped - jeœli mo¿liwe, free - w innym wypadku
+
+!***przypisanie w³asnoœci do obszarów***
+	!ustawienia rozmiaru siatki
+	LESIZE, 338,,, 2 	!iloœc podzia³ów k¹townika na gruboœci
+	!ASIZE
+	ESIZE, 3
+
+!***utworzenie siatki***
+	!siatk¹ k¹towników ramy
+	TYPE, 	1	!SOLID185
+	MAT, 	1
+	
+	VMESH, ALL

@@ -1,0 +1,78 @@
+!Skrypt zawiera inicjalizacjê wa¿niejszych parametrów modelu oraz niektórych
+!innych w³asnoœci modelu. Parametry te wykorzystywane w kilku miejscach modelu.
+!Jednokrotna inicjalizacja pozwala na unikniêcie wielokrotnego definiowania tych
+!samych w³aœciwoœci oraz na globaln¹ zmianê parametrów.
+
+!***definicje***
+	!element modeluj¹cy naprê¿enia wstêpne i zw¹zany z nim zbiór sta³ych
+	ET,		1, 	PRETS179
+	R, 		1				!zbiór nie zawiera definicji obcia¿enia.
+							!Obci¹¿enienie jest definiowane komend¹ SDATA
+	
+	!materia³ œrub
+	!parametry materia³u nr 1 - za³o¿ono stal ST235JR
+	!Modu³ sprê¿ystoœci pod³u¿nej i liczbê Poissona przyjêto jak dla
+	!standardowych stali konstrukcyjnych.
+	mat_sr_ex   = 2.1e5  	!modu³ Younga, 210GPa
+	mat_sr_prxy = 0.3     	!wspó³czynnik Poissona, 0.3
+	mat_sr_dens = 7.85e-9 	!gêstoœæ, 7850 kg/m^3
+	MP, EX,	1, mat_sr_ex
+	MP, PRXY,	1, mat_sr_prxy
+	MP, DENS,	1, mat_sr_dens
+
+	!naprê¿enia wstêpne w œrubach
+	!wartoœci si³y obci¹¿aj¹cej (ze wzoru F=pi*M/s, M - moment dokrêcenia,
+	!s - skok œruby. Przyjêto wartoœci orientacjyne, M=1.8 Nm, s=1.25mm)
+	sr_obciazenie_wstepne=3.14*1.8/0.00125
+
+!***wczytanie wa¿niejszych parametrów***
+	!wymiary gabarytowe stanowiska
+	st_szer=660
+	st_dlu=426
+	!wymiary k¹towników
+	kt_szer=40
+	kt_gr=1.5
+	kt_pol_otw=25
+	!œruby
+	!wymiary dla œruby M8 wg normy
+	srub_sr=8		!œrednica rdzenia
+	srub_podkl_sr=16	!œrednica podk³adki
+	srub_otw_sr=8.4	!œrednica otworu pod œrubê
+	srub_lbnk_sr=13	!œrednica ³ba i nakrêtki
+	srub_lbnk_wys=5.3	!wysokoœæ ³ba i nakrêtki
+	!odleg³oœæ kolejnych poziomów od podstawy (od dolu do górnej czêœci
+	!krótszego k¹townika)
+	poz_dol_wys=164.5
+	poz_sro_wys=525.5
+	poz_gor_wys=992.5
+	
+	ostatnia_para=0 	!licznik utworzonych par kontaktowych
+	
+	!zapis nazwy do zminnej
+	*GET, Jobname, ACTIVE,, JOBNAM
+
+!***domyœlne ustawienia solvera i postprocesorów***
+!>>>solver
+	!rodzaj analizy:
+	!1 - analiza statyczna
+	!2 - analiza modalna
+	rodzaj_analizy=2
+
+	!***ustawienia analizy modalnej***
+
+	!iloœæ modów - równa iloœci modów zapisywanych do pamiêci i plików:
+	ilosc_modow=10
+	!normalizacja postaci drgan:
+	!0 - M-ortonormalizacja
+	!1 - normalizacja do jedynki
+	norm_postaci=0
+	!uwzglêdnienie naprê¿eñ wstêpnych w analizie modalnej:
+	!0 - bez uwzglêdnienia naprê¿eñ
+	!1 - uwzglêdnienie naprê¿eñ
+	napr_wstep_FLAG=1
+
+	!t³umienie w analizie modalnej:
+	!0 - bez uwzglêdnienia t³umienia
+	!1 - uwzglêdnienia t³umienia, metoda Damped
+	!2 - uwzglêdnienie t³umienia, metoda QR Damped
+	a_modalna_tlumienie=0

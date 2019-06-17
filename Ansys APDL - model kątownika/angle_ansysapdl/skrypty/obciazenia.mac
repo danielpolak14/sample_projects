@@ -1,0 +1,7 @@
+!****warunki brzegowe i pocz¹tkowe****
+	ASEL, S,,, 1, 10000
+	ASEL, R, LOC, Z, -0.1, 0.1
+	DA, ALL, ALL
+
+	
+!**********definicja obci¹¿eñ*********

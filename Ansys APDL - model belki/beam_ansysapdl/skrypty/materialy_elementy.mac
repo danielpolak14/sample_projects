@@ -1,0 +1,19 @@
+!****definicja materia³ów****
+	!MAT20 - materia³ belki i jej uchwytu
+
+	!parametry materia³u nr 10 - za³o¿ono stal ST235JR
+	!Modu³ sprê¿ystoœci pod³u¿nej i liczbê Poissona przyjêto jak dla
+	!standardowych stali konstrukcyjnych.
+	mat_bk_ex	= 2.1e5		!modu³ Younga, 210GPa
+	mat_bk_prxy	= 0.3     	!wspó³czynnik Poissona, 0.3
+	mat_bk_dens	= 7.85e-9 	!gêstoœæ, 7850 kg/m^3
+
+	!przypisanie wartoœci do materia³u nr 20
+	MP, EX,	20, 	mat_bk_ex
+	MP, PRXY,	20,	mat_bk_prxy
+	MP, DENS,	20,	mat_bk_dens
+
+!****definicja przekrojów****
+
+!****definicja elementów****
+	ET, 20, SOLID185
