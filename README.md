@@ -1,4 +1,4 @@
-﻿Repozytorium zawiera prezentacje kilku projektów mojego autorstwa.
+﻿Repozytorium zawiera prezentację kilku projektów mojego autorstwa.
 
 Repozytorium można w całości pobrać na dysk wybierając opcję
 "Clone or download" (zielony przycisk po prawej stronie) -
